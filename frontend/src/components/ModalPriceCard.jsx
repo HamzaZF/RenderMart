@@ -3,7 +3,7 @@ import { Button, Modal, TextInput, Label } from 'flowbite-react';
 import { HiOutlineCurrencyDollar } from 'react-icons/hi';
 
 function ModalPriceCard({ isOpen, onClose, onSubmit }) {
-  const [price, setPrice] = useState('');
+  const [price, setPrice] = useState('0');
 
   const handleSubmit = () => {
     if (price.trim() !== '') {

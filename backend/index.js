@@ -4,9 +4,66 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from "uuid"; // Importer la méthode v4 pour générer des UUIDs
+import Database from 'better-sqlite3'; import helmet from 'helmet';
+import dotenv from 'dotenv';
+import cors from "cors";
+
+dotenv.config();
 
 const app = express();
 const PORT = 3300;
+
+// Ajoute Helmet pour sécuriser les headers HTTP
+app.use(helmet());
+
+// Activer CORS pour autoriser les requêtes du frontend
+app.use(cors({
+    origin: "http://localhost:5173", // L'URL du frontend React
+    credentials: true, // Autoriser l'envoi des cookies (sessions)
+}));
+
+// ---------- Database ----------
+
+// Initialisation de la base SQLite
+const db = new Database('./database.db');
+
+// Création de la table `users` si elle n'existe pas déjà
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL
+  )
+`);
+
+// Création de la table wallet (portefeuille des utilisateurs)
+db.exec(`
+    CREATE TABLE IF NOT EXISTS wallet (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL,
+      image_url TEXT NOT NULL,
+      status TEXT NOT NULL CHECK(status IN ('listed', 'withdrawn')),
+      price TEXT NOT NULL DEFAULT '0',
+      FOREIGN KEY(user_id) REFERENCES users(id)
+    )
+`);
+
+
+// Création de la table history (historique des ventes)
+db.exec(`
+CREATE TABLE IF NOT EXISTS history (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    image_url TEXT NOT NULL,
+    price REAL NOT NULL,
+    buyer_name TEXT NOT NULL,
+    date_sold TEXT NOT NULL,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+)
+`);
+
+console.log('Base de données initialisée.');
+
 
 //middleware
 app.use(express.json());
@@ -14,7 +71,7 @@ app.use(express.json());
 // ---------- Session ----------
 
 app.use(session({
-    secret: 'renderMartSecret',
+    secret: process.env.SESSION_SECRET || 'renderMartSecret',
     resave: false,
     saveUninitialized: false
 }));
@@ -26,158 +83,254 @@ app.use(passport.session());
 // ------------------ UTILISATEURS ------------------
 const users = [];
 
-//configuration de passport avec une stratégie locale
-passport.use(new LocalStrategy(
-    {usernameField: "email"},
-    async (email, password, done) => {
-        const user = users.find(user => user.email === email);
-        if (!user) {
-            return done(null, false, {message: 'Utilisateur non trouvé'});
+// Modification de la stratégie Passport pour utiliser SQLite
+passport.use(
+    new LocalStrategy(
+        { usernameField: 'email' },
+        async (email, password, done) => {
+            try {
+                // Cherche l'utilisateur dans SQLite
+                const user = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+                if (!user) {
+                    return done(null, false, { message: 'Utilisateur non trouvé.' });
+                }
+
+                // Vérifie le mot de passe
+                const isMatch = await bcrypt.compare(password, user.password);
+                if (!isMatch) {
+                    return done(null, false, { message: 'Mot de passe incorrect.' });
+                }
+
+                return done(null, user); // Authentification réussie
+            } catch (error) {
+                return done(error);
+            }
         }
-        if (!bcrypt.compareSync(password, user.password)) {
-            return done(null, false, {message: 'Mot de passe incorrect'});
-        }
-        return done(null, user);
-    })
+    )
 );
 
 // Sérialisation/Désérialisation de l'utilisateur pour les sessions
 passport.serializeUser((user, done) => {
     done(null, user.id);
 });
+
+
 passport.deserializeUser((id, done) => {
-    const user = users.find(user => user.id === id);
-    done(null, user);
+    try {
+        // Cherche l'utilisateur par son ID dans la base SQLite
+        const user = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+
+        if (!user) {
+            return done(new Error('Utilisateur non trouvé.'));
+        }
+
+        done(null, user); // L'utilisateur a été trouvé et désérialisé
+    } catch (error) {
+        done(error);
+    }
 });
+
 
 // ---------- Routes d'authentification ----------
 
-// Inscription
-app.post('/api/register', (req, res) => {
-    const {email, password} = req.body;
+app.post('/api/register', async (req, res) => {
+    const { email, password } = req.body;
 
-    // Vérifie si l'utilisateur existe déjà
-    if(users.find((u) => u.email === email)) {
-        return res.status(400).json({ message: 'Email déjà utilisé.' });
+    try {
+        // Vérifie si l'email est déjà utilisé
+        const userExists = db.prepare('SELECT * FROM users WHERE email = ?').get(email);
+        if (userExists) {
+            return res.status(400).json({ message: 'Email déjà utilisé.' });
+        }
+
+        // Hash le mot de passe
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Ajoute l'utilisateur à la base
+        db.prepare('INSERT INTO users (email, password) VALUES (?, ?)').run(email, hashedPassword);
+
+        res.json({ message: 'Utilisateur enregistré avec succès !' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de l\'inscription.', error: error.message });
     }
+});
 
-    const hashedPassword = bcrypt.hashSync(password, 10);
-    const newUser = {
-        id: uuidv4(),
-        email,
-        password: hashedPassword
-    };
-    users.push(newUser);
-    res.json({message: 'Utilisateur enregistré avec succès'});
+// Connexion (avec SQLite)
+app.post('/api/login', passport.authenticate('local', { failureMessage: true }), (req, res) => {
+    res.json({ message: 'Connexion réussie !' });
 }
-);
-
-// Connexion
-app.post('/api/login', passport.authenticate('local'), (req, res) => {
-    res.json({message: 'Connecté avec succès'});
-    }
 );
 
 // Vérifie si l'utilisateur est connecté
 app.get('/api/check-auth', (req, res) => {
     if (req.isAuthenticated()) {
-      return res.json({ message: 'Utilisateur connecté.', user: req.user });
+        const { id, email } = req.user; // N'envoie que les données non sensibles
+        return res.json({ message: 'Utilisateur connecté.', user: { id, email } });
     }
     res.status(401).json({ message: 'Non authentifié.' });
-  }
+}
 );
 
 // Déconnexion
 app.post('/api/logout', (req, res) => {
     req.logout((err) => {
-      if (err) {
-        return res.status(500).json({ message: 'Erreur lors de la déconnexion.' });
-      }
-      res.json({ message: 'Déconnexion réussie.' });
+        if (err) {
+            return res.status(500).json({ message: 'Erreur lors de la déconnexion.' });
+        }
+        res.json({ message: 'Déconnexion réussie.' });
     });
-  }
+}
 );
 
 // ---------- Autres Routes ----------
 
-//1. Wallet
-app.get('/api/wallet', (req, res) => {
-    const walletImages = [
-        {
-            id: 1,
-            status: 'listed',
-            url: 'https://placehold.co/600x400'
-        },
-        {
-            id: 2,
-            status: 'withdrawn',
-            url: 'https://placehold.co/600x400'
-        },
-        {
-            id: 3,
-            status: 'listed',
-            url: 'https://placehold.co/600x400'
-        }
-    ];
-    res.json(walletImages);
-});
-
-app.post('/api/wallet/list', (req, res) => {
-    const { imageId } = req.body;
-    res.json({
-        message: `Image ${imageId} listed succesfully !`,
-    });
-});
-
-app.post('/api/wallet/withdrawn', (req, res) => {
-    const { imageId } = req.body;
-    res.json({
-        message: `Image ${imageId} withdrawned succesfully !`,
-    });
-});
-
-//2. History
-app.get('/api/history', (req, res) => {
-    const history = [
-        { 
-            id: 1, 
-            price: 599, 
-            buyer: 'John Doe', 
-            dateSold: '2025-01-01' 
-        },
-        { 
-            id: 2, 
-            price: 799, 
-            buyer: 'Jane Doe', 
-            dateSold: '2025-01-02' 
-        },
-        { 
-            id: 3, 
-            price: 999, 
-            buyer: 'John Doe', 
-            dateSold: '2025-01-03' 
-        }
-    ];
-    res.json(history);
-});
-
-const generateImageId = () => Math.floor(Math.random() * 1000000);
-
-//3. Generate image
-app.use('/api/generate', (req, res) => {
-    const {description} = req.body;
-    const generatedImage = {
-        id: generateImageId(),
-        description,
-        url: 'https://placehold.co/600x400'
+const isAuthenticated = (req, res, next) => {
+    if (req.isAuthenticated()) {
+        return next(); // Si l'utilisateur est authentifié, on passe à la prochaine étape
     }
-    res.json(generatedImage);
+    res.status(401).json({ message: 'Vous devez être connecté pour accéder à cette ressource.' }); // Sinon, erreur 401
+};
+
+app.get('/api/wallet', isAuthenticated, (req, res) => {
+    try {
+        // Récupérer les images du portefeuille de l'utilisateur connecté
+        const wallet = db.prepare('SELECT * FROM wallet WHERE user_id = ?').all(req.user.id);
+        res.json(wallet);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération du portefeuille.', error: error.message });
+    }
 });
 
-//main routes
-app.get('/', (req, res) => {
-    res.send('Hello World');
+app.post('/api/wallet', isAuthenticated, (req, res) => {
+    const { image_url, status } = req.body;
+
+    try {
+        // Ajouter une image au portefeuille
+        db.prepare('INSERT INTO wallet (user_id, image_url, status) VALUES (?, ?, ?)').run(req.user.id, image_url, status || 'withdrawn');
+        res.json({ message: 'Image ajoutée au portefeuille avec succès.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de l\'ajout de l\'image.', error: error.message });
+    }
 });
+
+app.post('/api/wallet/list', isAuthenticated, (req, res) => {
+    console.log(req.body);
+    
+    const { image_id, price } = req.body;
+
+    console.log(req.body);
+    
+    try {
+        // Vérifie si la carte appartient à l'utilisateur
+        const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND user_id = ?').get(image_id, req.user.id);
+        if (!card) {
+            return res.status(404).json({ message: 'Carte introuvable ou non autorisée.' });
+        }
+
+        // Met à jour le statut de la carte et son prix
+        db.prepare('UPDATE wallet SET status = ?, price = ? WHERE id = ?').run('listed', price, image_id);
+
+        res.json({ message: 'Carte mise en vente avec succès.', image_id, price });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la mise en vente de la carte.', error: error.message });
+    }
+});
+
+
+
+app.post('/api/wallet/withdraw', isAuthenticated, (req, res) => {
+    const { image_id } = req.body;
+
+    try {
+        // Mettre à jour le statut de l'image en "withdrawn"
+        db.prepare('UPDATE wallet SET status = ? WHERE id = ? AND user_id = ?').run('withdrawn', image_id, req.user.id);
+        res.json({ message: 'Image retirée de la vente avec succès.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors du retrait de l\'image.', error: error.message });
+    }
+});
+
+app.get('/api/history', isAuthenticated, (req, res) => {
+    try {
+        // Récupérer l'historique des ventes de l'utilisateur connecté
+        const history = db.prepare('SELECT * FROM history WHERE user_id = ?').all(req.user.id);
+        res.json(history);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération de l\'historique.', error: error.message });
+    }
+});
+
+app.post('/api/history', isAuthenticated, (req, res) => {
+    const { image_url, price, buyer_name } = req.body;
+
+    try {
+        // Ajouter une vente dans l'historique
+        db.prepare('INSERT INTO history (user_id, image_url, price, buyer_name, date_sold) VALUES (?, ?, ?, ?, ?)').run(
+            req.user.id,
+            image_url,
+            price,
+            buyer_name,
+            new Date().toISOString().split('T')[0] // Date au format YYYY-MM-DD
+        );
+        res.json({ message: 'Vente ajoutée à l\'historique avec succès.' });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de l\'ajout à l\'historique.', error: error.message });
+    }
+});
+
+
+// Route pour afficher toutes les images en vente dans la marketplace
+app.get('/api/marketplace', (req, res) => {
+    try {
+        // Récupérer toutes les cartes "listed" avec leurs prix
+        const marketplaceImages = db.prepare(`
+            SELECT wallet.id, wallet.image_url, wallet.price, wallet.status, users.email AS owner_email
+            FROM wallet
+            INNER JOIN users ON wallet.user_id = users.id
+            WHERE wallet.status = 'listed'
+        `).all();
+
+        res.json(marketplaceImages);
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de la récupération des cartes en vente.', error: error.message });
+    }
+});
+
+
+app.post('/api/marketplace/buy', isAuthenticated, (req, res) => {
+    const { image_id } = req.body;
+
+    try {
+        // Vérifie si la carte existe et est en vente
+        const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND status = ?').get(image_id, 'listed');
+        if (!card) {
+            return res.status(400).json({ message: 'Carte introuvable ou déjà retirée de la vente.' });
+        }
+
+        // Simuler un prix (ce prix viendrait du client dans un vrai système)
+        const price = card.price || 0;
+
+        // Mettre à jour le statut de la carte comme retirée de la vente
+        db.prepare('UPDATE wallet SET status = ?, price = NULL WHERE id = ?').run('withdrawn', image_id);
+
+        // Ajouter la vente à l'historique
+        db.prepare(`
+            INSERT INTO history (user_id, image_url, price, buyer_name, date_sold)
+            VALUES (?, ?, ?, ?, ?)
+        `).run(
+            card.user_id, // Le vendeur
+            card.image_url,
+            price,
+            req.user.email, // Acheteur (email de l'utilisateur connecté)
+            new Date().toISOString().split('T')[0] // Date actuelle
+        );
+
+        res.json({ message: 'Achat réalisé avec succès !', price, image_id });
+    } catch (error) {
+        res.status(500).json({ message: 'Erreur lors de l\'achat.', error: error.message });
+    }
+});
+
 
 //start server
 app.listen(PORT, () => {

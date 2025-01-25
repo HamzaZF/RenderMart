@@ -24,12 +24,22 @@ import GenerateImage from './components/GenerateImage';
 import History from './components/History';
 import SignOutModal from './components/SignOutModal';
 import ModalPriceCard from './components/ModalPriceCard';
+import Login from './components/Login';
+import Signup from './components/Signup';
 
 // Les pages associées aux onglets de la barre latérale
 
 
 // Définition des routes
 const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <Login />, // Composant pour la page de connexion
+  },
+  {
+    path: '/signup',
+    element: <Signup />, // Composant pour la page de connexion
+  },
   {
     path: '/',
     element: <Dashboard />,
