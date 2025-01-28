@@ -30,10 +30,10 @@ function History() {
     };
 
     // Définir un délai minimum de chargement (500ms)
-    const delayPromise = new Promise((resolve) => setTimeout(resolve, 500));
+    //const delayPromise = new Promise((resolve) => setTimeout(resolve, 500));
 
     // Attendre les données et le délai minimum
-    Promise.all([fetchHistory(), delayPromise]).finally(() => {
+    Promise.all([fetchHistory()]).finally(() => {
       setLoading(false); // Fin du chargement
     });
   }, []); // Appel uniquement au montage du composant
@@ -88,7 +88,7 @@ function History() {
         <SoldCardsTable soldCards={soldCards} />
       ) : (
         <p className="text-gray-500 dark:text-gray-400 text-center">
-          Aucun historique de vente disponible.
+          {/* Aucun historique de vente disponible. */}
         </p>
       )}
     </main>

@@ -29,12 +29,14 @@ const db = new Database('./database.db');
 
 // Création de la table `users` si elle n'existe pas déjà
 db.exec(`
-  CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE NOT NULL,
-    password TEXT NOT NULL
-  )
-`);
+    CREATE TABLE IF NOT EXISTS users (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      email TEXT UNIQUE NOT NULL,
+      password TEXT NOT NULL,
+      balance REAL NOT NULL DEFAULT 500
+    )
+  `);
+
 
 // Création de la table wallet (portefeuille des utilisateurs)
 db.exec(`
@@ -215,11 +217,11 @@ app.post('/api/wallet', isAuthenticated, (req, res) => {
 
 app.post('/api/wallet/list', isAuthenticated, (req, res) => {
     console.log(req.body);
-    
+
     const { image_id, price } = req.body;
 
     console.log(req.body);
-    
+
     try {
         // Vérifie si la carte appartient à l'utilisateur
         const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND user_id = ?').get(image_id, req.user.id);
@@ -252,13 +254,24 @@ app.post('/api/wallet/withdraw', isAuthenticated, (req, res) => {
 
 app.get('/api/history', isAuthenticated, (req, res) => {
     try {
-        // Récupérer l'historique des ventes de l'utilisateur connecté
+        // Récupérer l'historique des ventes
         const history = db.prepare('SELECT * FROM history WHERE user_id = ?').all(req.user.id);
-        res.json(history);
+
+        // Formate chaque entrée avec un timestamp complet (ISO 8601)
+        const formattedHistory = history.map((item) => ({
+            ...item,
+            date_sold: new Date(item.date_sold).toISOString(), // Formate en ISO 8601 avec date + heure + secondes
+        }));
+
+        console.log(formattedHistory);
+
+        res.json(formattedHistory);
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de la récupération de l\'historique.', error: error.message });
     }
 });
+
+
 
 app.post('/api/history', isAuthenticated, (req, res) => {
     const { image_url, price, buyer_name } = req.body;
@@ -270,7 +283,7 @@ app.post('/api/history', isAuthenticated, (req, res) => {
             image_url,
             price,
             buyer_name,
-            new Date().toISOString().split('T')[0] // Date au format YYYY-MM-DD
+            new Date().toISOString()// Date au format YYYY-MM-DD
         );
         res.json({ message: 'Vente ajoutée à l\'historique avec succès.' });
     } catch (error) {
@@ -297,42 +310,94 @@ app.get('/api/marketplace', (req, res) => {
 });
 
 
+// app.post('/api/marketplace/buy', isAuthenticated, (req, res) => {
+//     const { image_id } = req.body;
+
+//     try {
+//         // Vérifie si la carte existe et est en vente
+//         const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND status = ?').get(image_id, 'listed');
+//         if (!card) {
+//             return res.status(400).json({ message: 'Carte introuvable ou déjà retirée de la vente.' });
+//         }
+
+//         // Simuler un prix (ce prix viendrait du client dans un vrai système)
+//         const price = card.price || 0;
+
+//         // Mettre à jour le statut de la carte comme retirée de la vente
+//         db.prepare('UPDATE wallet SET status = ?, price = NULL WHERE id = ?').run('withdrawn', image_id);
+
+//         // Ajouter la vente à l'historique
+//         db.prepare(`
+//             INSERT INTO history (user_id, image_url, price, buyer_name, date_sold)
+//             VALUES (?, ?, ?, ?, ?)
+//         `).run(
+//             card.user_id, // Le vendeur
+//             card.image_url,
+//             price,
+//             req.user.email, // Acheteur (email de l'utilisateur connecté)
+//             new Date().toISOString().split('T')[0] // Date actuelle
+//         );
+
+//         res.json({ message: 'Achat réalisé avec succès !', price, image_id });
+//     } catch (error) {
+//         res.status(500).json({ message: 'Erreur lors de l\'achat.', error: error.message });
+//     }
+// });
+
+
+//start server
+
 app.post('/api/marketplace/buy', isAuthenticated, (req, res) => {
     const { image_id } = req.body;
 
     try {
         // Vérifie si la carte existe et est en vente
         const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND status = ?').get(image_id, 'listed');
+        console.log("ici");
         if (!card) {
             return res.status(400).json({ message: 'Carte introuvable ou déjà retirée de la vente.' });
         }
 
-        // Simuler un prix (ce prix viendrait du client dans un vrai système)
-        const price = card.price || 0;
+        // Vérifie si l'utilisateur tente d'acheter sa propre carte
+        if (card.user_id === req.user.id) {
+            return res.status(403).json({ message: 'Vous ne pouvez pas acheter votre propre carte.' });
+        }
 
-        // Mettre à jour le statut de la carte comme retirée de la vente
-        db.prepare('UPDATE wallet SET status = ?, price = NULL WHERE id = ?').run('withdrawn', image_id);
+        const buyer = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
+        if (!buyer || buyer.balance < card.price) {
+            return res.status(400).json({ message: 'Fonds insuffisants.' });
+        }
 
-        // Ajouter la vente à l'historique
+        console.log("ici");
+
+        // Déduit le montant de l'acheteur
+        db.prepare('UPDATE users SET balance = balance - ? WHERE id = ?').run(card.price, req.user.id);
+
+        // Ajoute le montant au vendeur
+        db.prepare('UPDATE users SET balance = balance + ? WHERE id = ?').run(card.price, card.user_id);
+
+        // Transfère la carte au portefeuille de l'acheteur
+        db.prepare('UPDATE wallet SET user_id = ?, status = ?, price = 0 WHERE id = ?').run(req.user.id, 'withdrawn', image_id);
+
+        // Ajoute l'achat à l'historique
         db.prepare(`
             INSERT INTO history (user_id, image_url, price, buyer_name, date_sold)
             VALUES (?, ?, ?, ?, ?)
         `).run(
             card.user_id, // Le vendeur
             card.image_url,
-            price,
-            req.user.email, // Acheteur (email de l'utilisateur connecté)
-            new Date().toISOString().split('T')[0] // Date actuelle
+            card.price,
+            req.user.email, // Acheteur
+            new Date().toISOString()// Date actuelle
         );
 
-        res.json({ message: 'Achat réalisé avec succès !', price, image_id });
+        res.json({ message: 'Achat réalisé avec succès !', price: card.price, image_id });
     } catch (error) {
         res.status(500).json({ message: 'Erreur lors de l\'achat.', error: error.message });
     }
 });
 
 
-//start server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

@@ -10,7 +10,12 @@ import { useNavigate } from "react-router";
 function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState("marketplace");
+  // const [selectedTab, setSelectedTab] = useState("marketplace");
+  const [selectedTab, setSelectedTab] = useState(() => {
+    // Récupère la valeur sauvegardée dans localStorage ou utilise "marketplace" par défaut
+    return localStorage.getItem("selectedTab") || "marketplace";
+  });
+  
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
   const [isLogginActive, setIsLogginActive] = useState(null); // null = chargement initial
   const [loading, setLoading] = useState(true);
@@ -68,7 +73,6 @@ function Dashboard() {
     }
   };
 
-
   const location = useLocation();
 
   const openSignOutModal = () => {
@@ -99,7 +103,9 @@ function Dashboard() {
 
   const changeTab = (tab) => {
     setSelectedTab(tab);
+    localStorage.setItem("selectedTab", tab); // Sauvegarde dans localStorage
   };
+  
 
   // Pendant que la vérification d'authentification est en cours, afficher un loader
   // **Étape critique** : Ne pas afficher le contenu tant que la vérification n'est pas terminée
@@ -118,7 +124,8 @@ function Dashboard() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900">
+    isLogginActive && (
+      <main className="min-h-screen bg-gray-100 dark:bg-gray-900">
       {/* Navbar */}
       <nav className="fixed top-0 z-50 w-full bg-white border-b dark:bg-gray-800 dark:border-gray-700">
         <div className="flex items-center justify-between px-4 py-3">
@@ -151,15 +158,17 @@ function Dashboard() {
 
           {/* Logo */}
           <div className="flex items-center">
-            <img
-              //src="https://flowbite.com/docs/images/logo.svg"
-              src={logo}
-              alt="Logo"
-              className="h-8"
-            />
-            <span className="ml-2 text-xl font-semibold dark:text-white">
+            <Link className="flex items-center" to={"/"}>
+              <img
+                //src="https://flowbite.com/docs/images/logo.svg"
+                src={logo}
+                alt="Logo"
+                className="h-8"
+              />
+              <span className="ml-2 text-xl font-semibold dark:text-white">
               RenderMart
-            </span>
+              </span>
+            </Link>
           </div>
         </div>
       </nav>
@@ -303,6 +312,7 @@ function Dashboard() {
         </div>
       </section>
     </main>
+    )
   );
 
 

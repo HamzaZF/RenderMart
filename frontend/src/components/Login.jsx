@@ -102,6 +102,22 @@ function Login() {
         >
           Log In
         </button>
+
+        {/* Divider */}
+        <div className="mt-5 text-center text-gray-500 dark:text-gray-400">
+          <span>Don’t have an account?</span>
+        </div>
+
+        {/* Signup Link */}
+        <div className="mt-2 text-center">
+          <button
+            type="button"
+            onClick={() => navigate("/signup")}
+            className="text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Create an account
+          </button>
+        </div>
       </form>
     </main>
   );

@@ -155,6 +155,22 @@ function SignUp() {
         >
           Sign Up
         </button>
+
+        {/* Divider */}
+        <div className="mt-5 text-center text-gray-500 dark:text-gray-400">
+          <span>Already have an account?</span>
+        </div>
+
+        {/* Login Link */}
+        <div className="mt-2 text-center">
+          <button
+            type="button"
+            onClick={() => window.location.href = "/login"}
+            className="text-green-600 hover:underline dark:text-green-400"
+          >
+            Log In
+          </button>
+        </div>
       </form>
     </main>
   );
