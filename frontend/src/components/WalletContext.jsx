@@ -13,7 +13,7 @@ export const WalletProvider = ({ children }) => {
   const fetchWalletImages = async () => {
     try {
       setLoading(true);
-      const response = await fetch("http://localhost:3300/api/wallet", {
+      const response = await fetch(`http://${API_URL}:8090/api/wallet`, {
         credentials: "include",
       });
 

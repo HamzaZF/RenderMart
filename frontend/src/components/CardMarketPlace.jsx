@@ -3,7 +3,7 @@ import React from "react";
 function CardMarketPlace({ imageUrl, price, imageId, onBuySuccess }) {
   const handleBuy = async () => {
     try {
-      const response = await fetch("http://localhost:3300/api/marketplace/buy", {
+      const response = await fetch(`http://${API_URL}:8090/api/marketplace/buy`, {
         method: "POST",
         credentials: "include",
         headers: {

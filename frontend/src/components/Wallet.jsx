@@ -21,7 +21,7 @@ function Wallet() {
         setLoading(true); // Affiche le spinner pendant le chargement
         try {
             setError(null); // Réinitialise les erreurs
-            const response = await fetch("http://localhost:3300/api/wallet", {
+            const response = await fetch(`http://${API_URL}:8090/api/wallet`, {
                 credentials: "include", // Inclure les cookies pour la session utilisateur
             });
 
@@ -51,7 +51,7 @@ function Wallet() {
 
     const handleList = async (cardId, price) => {
         try {
-            const response = await fetch("http://localhost:3300/api/wallet/list", {
+            const response = await fetch(`http://${API_URL}:8090/api/wallet/list`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -81,7 +81,7 @@ function Wallet() {
     const handleWithdraw = async (cardId) => {
         try {
             const response = await fetch(
-                "http://localhost:3300/api/wallet/withdraw",
+                `http://${API_URL}:8090/api/wallet/withdraw`,
                 {
                     method: "POST",
                     credentials: "include",
@@ -135,7 +135,7 @@ function Wallet() {
                         ></path>
                     </svg>
                     <p className="mt-4 text-gray-500 dark:text-gray-400">
-                        Chargement de votre portefeuille...
+                        fetching images from the wallet...
                     </p>
                 </div>
             </main>
@@ -146,15 +146,15 @@ function Wallet() {
         return (
             <main className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
                 <p className="text-red-500 text-center">
-                    Une erreur est survenue : {error}
+                    An error occurred
                 </p>
                 {/* Bouton Rafraîchir dans la vue d'erreur */}
-                <button
+                {/* <button
                     onClick={fetchWalletImages}
                     className="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
                 >
                     Refresh
-                </button>
+                </button> */}
             </main>
         );
     }

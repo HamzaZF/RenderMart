@@ -14,7 +14,7 @@ function Marketplace() {
     setLoading(true); // Montre le spinner lors du rafraîchissement
     try {
       setError(null); // Réinitialise les erreurs avant le fetch
-      const response = await fetch("http://localhost:3300/api/marketplace", {
+      const response = await fetch(`http://${API_URL}:8090/api/marketplace`, {
         credentials: "include", // Inclure les cookies pour la session utilisateur
       });
 
@@ -73,7 +73,7 @@ function Marketplace() {
             ></path>
           </svg>
           <p className="mt-4 text-gray-500 dark:text-gray-400">
-            Chargement des images de la marketplace...
+            fetching images from the marketplace...
           </p>
         </div>
       </main>
@@ -84,15 +84,15 @@ function Marketplace() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <p className="text-red-500 text-center">
-          Une erreur est survenue : {error}
+          An error occurred
         </p>
-        {/* Bouton de rafraîchissement dans la vue d'erreur */}
+        {/* //Bouton de rafraîchissement dans la vue d'erreur
         <button
           onClick={fetchMarketplaceImages}
           className="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
         >
           Refresh
-        </button>
+        </button> */}
       </main>
     );
   }

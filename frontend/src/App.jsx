@@ -25,7 +25,7 @@ import History from './components/History';
 import SignOutModal from './components/SignOutModal';
 import ModalPriceCard from './components/ModalPriceCard';
 import Login from './components/Login';
-import Signup from './components/Signup';
+import SignUp from './components/SignUp';
 
 // Les pages associées aux onglets de la barre latérale
 
@@ -38,7 +38,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/signup',
-    element: <Signup />, // Composant pour la page de connexion
+    element: <SignUp />, // Composant pour la page de connexion
   },
   {
     path: '/',

@@ -21,7 +21,7 @@ function Login() {
     e.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3300/api/login", {
+      const response = await fetch(`${API_URL}:80/api/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

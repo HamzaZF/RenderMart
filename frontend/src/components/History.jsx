@@ -13,7 +13,7 @@ function History() {
       try {
         setError(null); // Réinitialiser les erreurs
 
-        const response = await fetch("http://localhost:3300/api/history", {
+        const response = await fetch(`http://${API_URL}:8090/api/history`, {
           method: "GET",
           credentials: "include", // Nécessaire pour inclure les cookies de session
         });
@@ -65,7 +65,7 @@ function History() {
             ></path>
           </svg>
           <p className="mt-4 text-gray-500 dark:text-gray-400">
-            Chargement de l'historique des ventes...
+            fetching history...
           </p>
         </div>
       </main>
@@ -76,7 +76,7 @@ function History() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
         <p className="text-red-500 dark:text-red-400">
-          Une erreur est survenue : {error}
+          An error occurred
         </p>
       </main>
     );
