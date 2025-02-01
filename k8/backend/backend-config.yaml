@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: backend-config
-  namespace: rendermart
-data:
-  PORT: "3300"
-  DB_HOST: "postgres.rendermart.svc.cluster.local"
-  DB_NAME: "rendermart"

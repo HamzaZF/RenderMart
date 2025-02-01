@@ -1,9 +1,11 @@
 import React from "react";
 
-function CardMarketPlace({ imageUrl, price, imageId, onBuySuccess }) {
+function CardMarketPlace({ imageUrl, price, imageId, onBuySuccess, onBuyFailure }) {
+  const API_URL = import.meta.env.VITE_API_URL;
+  
   const handleBuy = async () => {
     try {
-      const response = await fetch(`http://${API_URL}:8090/api/marketplace/buy`, {
+      const response = await fetch(`${API_URL}:80/api/marketplace/buy`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -14,16 +16,19 @@ function CardMarketPlace({ imageUrl, price, imageId, onBuySuccess }) {
 
       if (!response.ok) {
         const errorData = await response.json();
-        alert(`Achat échoué : ${errorData.message}`);
+        //call onBuyFailure
+        if (onBuyFailure) onBuyFailure(errorData.message);
+        //alert(`Purchase failed: ${errorData.message}`);
         return;
       }
 
       const data = await response.json();
-      // Appeler le callback onBuySuccess pour afficher le toast
+      // Call the onBuySuccess callback to display the toast notification
       if (onBuySuccess) onBuySuccess(data.price);
     } catch (error) {
-      console.error("Erreur lors de l'achat :", error);
-      alert("Une erreur est survenue lors de l'achat.");
+      console.error("Error during purchase:", error);
+      if (onBuyFailure) onBuyFailure(error.message);
+      //alert("An error occurred during the purchase.");
     }
   };
 

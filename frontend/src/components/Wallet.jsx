@@ -4,54 +4,56 @@ import { Toast } from "flowbite-react";
 import { HiCheck, HiExclamation } from "react-icons/hi";
 
 function Wallet() {
-    const [walletCards, setWalletCards] = useState(null); // État pour stocker les cartes du portefeuille
-    const [error, setError] = useState(null); // État pour gérer les erreurs
-    const [loading, setLoading] = useState(true); // État de chargement
-    const [toastMessage, setToastMessage] = useState(null); // Message pour le toast
-    const [toastType, setToastType] = useState("success"); // Type de toast : success / error
+    const [walletCards, setWalletCards] = useState(null); // State to store wallet cards
+    const [error, setError] = useState(null); // State to handle errors
+    const [loading, setLoading] = useState(true); // Loading state
+    const [toastMessage, setToastMessage] = useState(null); // Message for the toast
+    const [toastType, setToastType] = useState("success"); // Toast type: success / error
 
-    // Afficher un toast temporaire
+    const API_URL = import.meta.env.VITE_API_URL;
+
+    // Display a temporary toast
     const showToast = (message, type = "success") => {
         setToastMessage(message);
         setToastType(type);
-        setTimeout(() => setToastMessage(null), 5000); // Cache le toast après 5 secondes
+        setTimeout(() => setToastMessage(null), 5000); // Hide the toast after 5 seconds
     };
 
     const fetchWalletImages = async () => {
-        setLoading(true); // Affiche le spinner pendant le chargement
+        setLoading(true); // Display spinner during loading
         try {
-            setError(null); // Réinitialise les erreurs
-            const response = await fetch(`http://${API_URL}:8090/api/wallet`, {
-                credentials: "include", // Inclure les cookies pour la session utilisateur
+            setError(null); // Reset errors
+            const response = await fetch(`${API_URL}:80/api/wallet`, {
+                credentials: "include", // Include cookies for the user session
             });
 
             if (!response.ok) {
                 throw new Error(
-                    `Erreur lors de la récupération des données : ${response.statusText}`
+                    `Error fetching data: ${response.statusText}`
                 );
             }
 
             const data = await response.json();
 
             if (!Array.isArray(data)) {
-                throw new Error("Les données récupérées ne sont pas valides.");
+                throw new Error("The retrieved data is not valid.");
             }
 
-            setWalletCards(data); // Met à jour l'état local avec les données récupérées
+            setWalletCards(data); // Update local state with fetched data
         } catch (err) {
-            setError(err.message); // Capture et stocke les erreurs
+            setError(err.message); // Capture and store errors
         } finally {
-            setLoading(false); // Arrête le chargement après le délai
+            setLoading(false); // Stop loading after completion
         }
     };
 
     useEffect(() => {
-        fetchWalletImages(); // Charge les données au montage du composant
-    }, []); // Dépendances vides : s'exécute uniquement au montage
+        fetchWalletImages(); // Load data on component mount
+    }, []); // Empty dependencies: runs only on mount
 
     const handleList = async (cardId, price) => {
         try {
-            const response = await fetch(`http://${API_URL}:8090/api/wallet/list`, {
+            const response = await fetch(`${API_URL}:80/api/wallet/list`, {
                 method: "POST",
                 credentials: "include",
                 headers: {
@@ -61,7 +63,7 @@ function Wallet() {
             });
 
             if (!response.ok) {
-                throw new Error("Erreur lors de la mise en vente de la carte.");
+                throw new Error("Error listing the card for sale.");
             }
 
             setWalletCards((prevCards) =>
@@ -70,18 +72,18 @@ function Wallet() {
                 )
             );
 
-            showToast("Carte mise en vente avec succès !");
+            showToast("Card successfully listed for sale!");
         } catch (err) {
             console.error(err);
             setError(err.message);
-            showToast("Erreur lors de la mise en vente.", "error");
+            showToast("Error listing the card.", "error");
         }
     };
 
     const handleWithdraw = async (cardId) => {
         try {
             const response = await fetch(
-                `http://${API_URL}:8090/api/wallet/withdraw`,
+                `${API_URL}:80/api/wallet/withdraw`,
                 {
                     method: "POST",
                     credentials: "include",
@@ -93,7 +95,7 @@ function Wallet() {
             );
 
             if (!response.ok) {
-                throw new Error("Erreur lors du retrait de la carte.");
+                throw new Error("Error withdrawing the card.");
             }
 
             setWalletCards((prevCards) =>
@@ -102,11 +104,11 @@ function Wallet() {
                 )
             );
 
-            showToast("Carte retirée de la vente avec succès !");
+            showToast("Card successfully withdrawn from sale!");
         } catch (err) {
             console.error(err);
             setError(err.message);
-            showToast("Erreur lors du retrait de la carte.", "error");
+            showToast("Error withdrawing the card.", "error");
         }
     };
 
@@ -148,7 +150,7 @@ function Wallet() {
                 <p className="text-red-500 text-center">
                     An error occurred
                 </p>
-                {/* Bouton Rafraîchir dans la vue d'erreur */}
+                {/* Refresh Button in the error view */}
                 {/* <button
                     onClick={fetchWalletImages}
                     className="mt-4 px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
@@ -165,7 +167,7 @@ function Wallet() {
                 <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
                     Wallet
                 </h2>
-                {/* Bouton Rafraîchir */}
+                {/* Refresh Button */}
                 <button
                     onClick={fetchWalletImages}
                     className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
@@ -190,7 +192,7 @@ function Wallet() {
                 ) : (
                     <div>
                         <p className="text-gray-600 dark:text-gray-400">
-                            {/* Votre portefeuille est vide. */}
+                            {/* Your wallet is empty. */}
                         </p>
                     </div>
                 )}

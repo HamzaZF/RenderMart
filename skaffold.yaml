@@ -1,0 +1,30 @@
+apiVersion: skaffold/v4beta12
+kind: Config
+metadata:
+  name: rendermart
+build:
+  artifacts:
+    - image: hamzazf/rendermart-backend
+      context: backend
+      docker:
+        dockerfile: Dockerfile
+    - image: hamzazf/rendermart-frontend
+      context: frontend
+      docker:
+        dockerfile: Dockerfile
+  local:
+    push: true
+manifests:
+  rawYaml:
+    - k8s/redis/redis-secret.yaml
+    - k8s/config/namespace.yaml
+    - k8s/postgres/postgres-pvc.yaml
+    - k8s/postgres/postgres-secret.yaml
+    - k8s/postgres/postgres-service.yaml
+    - k8s/postgres/postgres-statefulset.yaml
+    - k8s/backend/backend-config.yaml
+    - k8s/backend/backend-deployment.yaml
+    - k8s/backend/backend-service.yaml
+    - k8s/frontend/frontend-deployment.yaml
+    - k8s/frontend/frontend-service.yaml
+    - k8s/config/ingress.yaml

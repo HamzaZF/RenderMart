@@ -1,34 +1,36 @@
 import React, { createContext, useContext, useState } from "react";
 
-// Crée le contexte
+// Create the context
 const WalletContext = createContext();
 
-// Fournisseur du contexte
+// Wallet context provider
 export const WalletProvider = ({ children }) => {
-  const [walletCards, setWalletCards] = useState(null); // Stocke les cartes
-  const [loading, setLoading] = useState(false); // Indique si les données sont en cours de chargement
-  const [error, setError] = useState(null); // Indique les erreurs
+  const [walletCards, setWalletCards] = useState(null); // Stores the wallet cards
+  const [loading, setLoading] = useState(false); // Indicates whether data is currently loading
+  const [error, setError] = useState(null); // Indicates errors
 
-  // Fonction pour récupérer les données (appelée une seule fois)
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  // Function to fetch data (called once)
   const fetchWalletImages = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://${API_URL}:8090/api/wallet`, {
+      const response = await fetch(`${API_URL}:80/api/wallet`, {
         credentials: "include",
       });
 
       if (!response.ok) {
         throw new Error(
-          `Erreur lors de la récupération des données : ${response.statusText}`
+          `Error fetching data: ${response.statusText}`
         );
       }
 
       const data = await response.json();
       if (!Array.isArray(data)) {
-        throw new Error("Les données récupérées ne sont pas valides.");
+        throw new Error("The fetched data is not valid.");
       }
 
-      setWalletCards(data); // Met à jour les cartes
+      setWalletCards(data); // Update the wallet cards
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,5 +47,5 @@ export const WalletProvider = ({ children }) => {
   );
 };
 
-// Hook pour utiliser le contexte
+// Hook to use the wallet context
 export const useWallet = () => useContext(WalletContext);

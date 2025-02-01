@@ -1,0 +1,31 @@
+1:C 31 Jan 2025 13:34:12.429 * oO0OoO0OoO0Oo Redis is starting oO0OoO0OoO0Oo
+1:C 31 Jan 2025 13:34:12.429 * Redis version=7.4.2, bits=64, commit=00000000, modified=1, pid=1, just started
+1:C 31 Jan 2025 13:34:12.429 * Configuration loaded
+1:M 31 Jan 2025 13:34:12.430 * monotonic clock: POSIX clock_gettime
+1:M 31 Jan 2025 13:34:12.432 * Running mode=standalone, port=6379.
+1:M 31 Jan 2025 13:34:12.433 * Server initialized
+1:M 31 Jan 2025 13:34:12.434 * Reading RDB base file on AOF loading...
+1:M 31 Jan 2025 13:34:12.434 * Loading RDB produced by version 7.4.2
+1:M 31 Jan 2025 13:34:12.434 * RDB age 408 seconds
+1:M 31 Jan 2025 13:34:12.434 * RDB memory usage when created 0.90 Mb
+1:M 31 Jan 2025 13:34:12.434 * RDB is base AOF
+1:M 31 Jan 2025 13:34:12.434 * Done loading RDB, keys loaded: 0, keys expired: 0.
+1:M 31 Jan 2025 13:34:12.434 * DB loaded from base file appendonly.aof.1.base.rdb: 0.001 seconds
+1:M 31 Jan 2025 13:34:12.434 * DB loaded from append only file: 0.001 seconds
+1:M 31 Jan 2025 13:34:12.434 * Opening AOF incr file appendonly.aof.1.incr.aof on server start
+1:M 31 Jan 2025 13:34:12.434 * Ready to accept connections tcp
+1:M 31 Jan 2025 13:35:00.263 * Replica rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379 asks for synchronization
+1:M 31 Jan 2025 13:35:00.263 * Full resync requested by replica rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379
+1:M 31 Jan 2025 13:35:00.263 * Replication backlog created, my new replication IDs are '7f4449f501be0854034ccd49f90657745d2efd09' and '0000000000000000000000000000000000000000'
+1:M 31 Jan 2025 13:35:00.264 * Delay next BGSAVE for diskless SYNC
+1:M 31 Jan 2025 13:35:05.367 * Starting BGSAVE for SYNC with target: replicas sockets
+1:M 31 Jan 2025 13:35:05.368 * Background RDB transfer started by pid 144
+144:C 31 Jan 2025 13:35:05.369 * Fork CoW for RDB: current 0 MB, peak 0 MB, average 0 MB
+1:M 31 Jan 2025 13:35:05.369 * Diskless rdb transfer, done reading from pipe, 1 replicas still up.
+1:M 31 Jan 2025 13:35:05.378 * Background RDB transfer terminated with success
+1:M 31 Jan 2025 13:35:05.379 * Streamed RDB transfer with replica rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379 succeeded (socket). Waiting for REPLCONF ACK from replica to enable streaming
+1:M 31 Jan 2025 13:35:05.379 * Synchronization with replica rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379 succeeded
+1:M 31 Jan 2025 13:55:04.805 # Disconnecting timedout replica (streaming sync): rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379
+1:M 31 Jan 2025 13:55:04.805 * Connection with replica rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379 lost.
+1:M 31 Jan 2025 13:55:04.905 * Replica rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379 asks for synchronization
+1:M 31 Jan 2025 13:55:04.906 * Partial resynchronization request from rendermart-redis-replicas-2.rendermart-redis-headless.default.svc.cluster.local:6379 accepted. Sending 0 bytes of backlog starting from offset 253.

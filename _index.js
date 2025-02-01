@@ -226,15 +226,15 @@ app.post('/api/wallet/list', isAuthenticated, (req, res) => {
         // Vérifie si la carte appartient à l'utilisateur
         const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND user_id = ?').get(image_id, req.user.id);
         if (!card) {
-            return res.status(404).json({ message: 'Carte introuvable ou non autorisée.' });
+            return res.status(404).json({ message: 'Card not found or not authorized.' });
         }
 
         // Met à jour le statut de la carte et son prix
         db.prepare('UPDATE wallet SET status = ?, price = ? WHERE id = ?').run('listed', price, image_id);
 
-        res.json({ message: 'Carte mise en vente avec succès.', image_id, price });
+        res.json({ message: 'Card successfully listed for sale.', image_id, price });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la mise en vente de la carte.', error: error.message });
+        res.status(500).json({ message: 'Error while listing the card for sale.', error: error.message });
     }
 });
 
@@ -246,9 +246,9 @@ app.post('/api/wallet/withdraw', isAuthenticated, (req, res) => {
     try {
         // Mettre à jour le statut de l'image en "withdrawn"
         db.prepare('UPDATE wallet SET status = ? WHERE id = ? AND user_id = ?').run('withdrawn', image_id, req.user.id);
-        res.json({ message: 'Image retirée de la vente avec succès.' });
+        res.json({ message: 'Image successfully removed from sale.' });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors du retrait de l\'image.', error: error.message });
+        res.status(500).json({ message: 'Error while removing the image.', error: error.message });
     }
 });
 
@@ -267,7 +267,7 @@ app.get('/api/history', isAuthenticated, (req, res) => {
 
         res.json(formattedHistory);
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la récupération de l\'historique.', error: error.message });
+        res.status(500).json({ message: 'Error while retrieving the history.', error: error.message });
     }
 });
 
@@ -285,9 +285,9 @@ app.post('/api/history', isAuthenticated, (req, res) => {
             buyer_name,
             new Date().toISOString()// Date au format YYYY-MM-DD
         );
-        res.json({ message: 'Vente ajoutée à l\'historique avec succès.' });
+        res.json({ message: 'Sale successfully added to the history.' });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de l\'ajout à l\'historique.', error: error.message });
+        res.status(500).json({ message: 'Error while adding to the history.', error: error.message });
     }
 });
 
@@ -305,7 +305,7 @@ app.get('/api/marketplace', (req, res) => {
 
         res.json(marketplaceImages);
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la récupération des cartes en vente.', error: error.message });
+        res.status(500).json({ message: 'Error while retrieving the cards for sale.', error: error.message });
     }
 });
 
@@ -355,17 +355,17 @@ app.post('/api/marketplace/buy', isAuthenticated, (req, res) => {
         const card = db.prepare('SELECT * FROM wallet WHERE id = ? AND status = ?').get(image_id, 'listed');
         console.log("ici");
         if (!card) {
-            return res.status(400).json({ message: 'Carte introuvable ou déjà retirée de la vente.' });
+            return res.status(400).json({ message: 'Card not found or already removed from sale.' });
         }
 
         // Vérifie si l'utilisateur tente d'acheter sa propre carte
         if (card.user_id === req.user.id) {
-            return res.status(403).json({ message: 'Vous ne pouvez pas acheter votre propre carte.' });
+            return res.status(403).json({ message: 'You cannot buy your own card.' });
         }
 
         const buyer = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
         if (!buyer || buyer.balance < card.price) {
-            return res.status(400).json({ message: 'Fonds insuffisants.' });
+            return res.status(400).json({ message: 'Insufficient funds.' });
         }
 
         console.log("ici");
@@ -391,9 +391,9 @@ app.post('/api/marketplace/buy', isAuthenticated, (req, res) => {
             new Date().toISOString()// Date actuelle
         );
 
-        res.json({ message: 'Achat réalisé avec succès !', price: card.price, image_id });
+        res.json({ message: 'Purchase successfully completed!', price: card.price, image_id });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de l\'achat.', error: error.message });
+        res.status(500).json({ message: 'Error while making the purchase.', error: error.message });
     }
 });
 
@@ -403,7 +403,7 @@ app.get('/api/user-balance', isAuthenticated, (req, res) => {
         const user = db.prepare('SELECT balance FROM users WHERE id = ?').get(req.user.id);
         res.json({ balance: user.balance });
     } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la récupération du solde.', error: error.message });
+        res.status(500).json({ message: 'Error while retrieving the balance.', error: error.message });
     }
 });
 

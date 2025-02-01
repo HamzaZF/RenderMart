@@ -10,6 +10,8 @@ function GenerateImage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
 
+    const API_URL = import.meta.env.VITE_API_URL;
+
     const generateSeed = () => {
         const randomSeed = Math.floor(Math.random() * Math.pow(2, 32)); // Génère un entier aléatoire sur 32 bits
         setSeed(randomSeed);
@@ -46,7 +48,7 @@ function GenerateImage() {
         }
 
         try {
-            const response = await fetch(`http://${API_URL}:8090/api/wallet`, {
+            const response = await fetch(`${API_URL}:80/api/wallet`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

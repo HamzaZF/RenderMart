@@ -2,29 +2,29 @@ import React, { useState } from "react";
 import ModalPriceCard from "./ModalPriceCard";
 
 function CardWallet({ imageUrl, initialState, cardId, onList, onWithdraw, initialPrice }) {
-  const [isListed, setIsListed] = useState(initialState); // État local pour le statut
-  const [price, setPrice] = useState(initialPrice); // Prix de la carte
-  const [isModalOpen, setIsModalOpen] = useState(false); // État du modal
+  const [isListed, setIsListed] = useState(initialState); // Local state for the status
+  const [price, setPrice] = useState(initialPrice); // Card price
+  const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
 
   const handleList = async (enteredPrice) => {
     try {
-      await onList(enteredPrice); // Appelle la fonction parent pour gérer l'API //onList(cardId, enteredPrice);
-      setPrice(enteredPrice); // Enregistre le prix localement
-      setIsListed(true); // Passe l'état à "listed"
+      await onList(enteredPrice); // Call the parent function to handle the API //onList(cardId, enteredPrice);
+      setPrice(enteredPrice); // Save the price locally
+      setIsListed(true); // Change the state to "listed"
     } catch (error) {
-      console.error("Erreur lors de la mise en vente :", error);
+      console.error("Error listing the card:", error);
     } finally {
-      setIsModalOpen(false); // Ferme le modal
+      setIsModalOpen(false); // Close the modal
     }
   };
 
   const handleWithdraw = async () => {
     try {
-      await onWithdraw(cardId); // Appelle la fonction parent pour gérer l'API
-      setPrice(null); // Réinitialise le prix
-      setIsListed(false); // Passe l'état à "withdrawn"
+      await onWithdraw(cardId); // Call the parent function to handle the API
+      setPrice(null); // Reset the price
+      setIsListed(false); // Change the state to "withdrawn"
     } catch (error) {
-      console.error("Erreur lors du retrait :", error);
+      console.error("Error withdrawing the card:", error);
     }
   };
 
@@ -39,7 +39,7 @@ function CardWallet({ imageUrl, initialState, cardId, onList, onWithdraw, initia
           <img className="rounded-t-lg" src={imageUrl} alt="Product" />
         </a>
 
-        {/* Affichage du prix lorsque la carte est "en vente" */}
+        {/* Display the price when the card is listed for sale */}
         {isListed && price && (
           <div className="absolute top-2 left-2 bg-black/60 text-white text-sm px-3 py-1 rounded-lg">
             Listed for ${price}
@@ -59,8 +59,8 @@ function CardWallet({ imageUrl, initialState, cardId, onList, onWithdraw, initia
 
           <button
             onClick={() => {
-              if (!isListed) setIsModalOpen(true); // Ouvre le modal si on veut lister
-              else handleWithdraw(); // Retire la carte si elle est en vente
+              if (!isListed) setIsModalOpen(true); // Open the modal if listing the card
+              else handleWithdraw(); // Withdraw the card if it is listed
             }}
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 transition-transform transform hover:scale-105"
           >
@@ -69,7 +69,7 @@ function CardWallet({ imageUrl, initialState, cardId, onList, onWithdraw, initia
         </div>
       </div>
 
-      {/* Modal pour entrer le prix */}
+      {/* Modal to enter the price */}
       {isModalOpen && (
         <ModalPriceCard
           isOpen={isModalOpen}

@@ -9,6 +9,8 @@ function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");

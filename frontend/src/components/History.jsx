@@ -7,27 +7,31 @@ function History() {
   const [loading, setLoading] = useState(true); // État de chargement
   const [error, setError] = useState(null); // État des erreurs
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
+  const fetchHistory = async () => {
+    try {
+      setError(null); // Réinitialiser les erreurs
+
+      const response = await fetch(`${API_URL}:80/api/history`, {
+        method: "GET",
+        credentials: "include", // Nécessaire pour inclure les cookies de session
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur ${response.status} : ${response.statusText}`);
+      }
+
+      const data = await response.json(); // Récupérer les données de l'API
+      setSoldCards(data); // Stocker les cartes vendues
+    } catch (err) {
+      setError(err.message); // Gérer les erreurs
+    }
+  };
+
   // Appel API pour récupérer l'historique des ventes
   useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        setError(null); // Réinitialiser les erreurs
-
-        const response = await fetch(`http://${API_URL}:8090/api/history`, {
-          method: "GET",
-          credentials: "include", // Nécessaire pour inclure les cookies de session
-        });
-
-        if (!response.ok) {
-          throw new Error(`Erreur ${response.status} : ${response.statusText}`);
-        }
-
-        const data = await response.json(); // Récupérer les données de l'API
-        setSoldCards(data); // Stocker les cartes vendues
-      } catch (err) {
-        setError(err.message); // Gérer les erreurs
-      }
-    };
+    
 
     // Définir un délai minimum de chargement (500ms)
     //const delayPromise = new Promise((resolve) => setTimeout(resolve, 500));
@@ -83,7 +87,19 @@ function History() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
+    <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+          History
+        </h2>
+        {/* Bouton Rafraîchir */}
+        <button
+          onClick={fetchHistory}
+          className="px-4 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300"
+        >
+          Refresh
+        </button>
+      </div>
       {soldCards.length > 0 ? (
         <SoldCardsTable soldCards={soldCards} />
       ) : (

@@ -9,6 +9,8 @@ function Login() {
 
   const navigate = useNavigate(); // Initialiser useNavigate
 
+  const API_URL = import.meta.env.VITE_API_URL;
+
   useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add("dark");

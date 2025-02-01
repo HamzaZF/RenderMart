@@ -6,18 +6,17 @@ import { useLocation } from "react-router";
 import logo from '../assets/logo/logo_no_bg.png';
 import { useNavigate } from "react-router";
 
-
 function Dashboard() {
   const [darkMode, setDarkMode] = useState(true);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   // const [selectedTab, setSelectedTab] = useState("marketplace");
   const [selectedTab, setSelectedTab] = useState(() => {
-    // Récupère la valeur sauvegardée dans localStorage ou utilise "marketplace" par défaut
+    // Retrieve the saved value from localStorage or use "marketplace" by default
     return localStorage.getItem("selectedTab") || "marketplace";
   });
 
   const [isSignOutModalOpen, setIsSignOutModalOpen] = useState(false);
-  const [isLogginActive, setIsLogginActive] = useState(null); // null = chargement initial
+  const [isLogginActive, setIsLogginActive] = useState(null); // null = initial loading state
   const [loading, setLoading] = useState(true);
   const [balance, setBalance] = useState(0);
 
@@ -31,63 +30,62 @@ function Dashboard() {
       const response = await fetch(`${API_URL}:80/api/user-balance`, { method: "GET", credentials: "include" });
       if (response.ok) {
         const data = await response.json();
-        setBalance(data.balance); // Mettez à jour l'état du solde
+        setBalance(data.balance); // Update the balance state
       }
     } catch (error) {
-      console.error("Erreur lors de la récupération du solde :", error);
+      console.error("Error retrieving balance:", error);
     }
   };
 
+  // Verify authentication status to determine if sign in or sign out should be shown in the navbar
 
-  //check status to see if sign in ou sign out has to be showed in the navbar
-
-  // Vérifie si l'utilisateur est authentifié
+  // Check if the user is authenticated
   const checkAuth = async () => {
     try {
       const response = await fetch(`${API_URL}:80/api/check-auth`, {
         method: "GET",
-        credentials: "include", // Envoie les cookies pour vérifier la session
+        credentials: "include", // Send cookies to verify the session
       });
 
       if (response.ok) {
         const data = await response.json();
-        console.log("Utilisateur connecté :", data.user);
-        setIsLogginActive(true); // Authentification réussie
+        console.log("Connected user:", data.user);
+        setIsLogginActive(true); // Authentication successful
         fetchBalance();
       } else {
-        console.warn("Utilisateur non authentifié");
-        setIsLogginActive(false); // Authentification échouée
-        navigate("/login"); // Redirection
+        console.warn("User not authenticated");
+        setIsLogginActive(false); // Authentication failed
+        navigate("/login"); // Redirect to login page
       }
     } catch (error) {
-      console.error("Erreur lors de la vérification d'authentification :", error);
-      setIsLogginActive(false); // Erreur = non connecté
+      console.error("Error during authentication check:", error);
+      setIsLogginActive(false); // Error = not authenticated
       navigate("/login");
     }
   };
 
-  // Appelé au montage du composant pour vérifier l'authentification
+  // Called on component mount to verify authentication
   useEffect(() => {
     checkAuth();
-  }, []); // Le tableau vide signifie qu'il sera exécuté une seule fois, au montage
+  }, []); // Empty dependency array: executed only on mount
 
   const handleLogout = async () => {
     try {
       const response = await fetch(`${API_URL}:80/api/logout`, {
         method: "POST",
-        credentials: "include", // Important pour les cookies de session
+        credentials: "include", // Important for session cookies
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log(data.message);
-        setIsLogginActive(false); // Déconnecte l'utilisateur
-        navigate("/login"); // Redirige vers la page de connexion
+        setIsLogginActive(false); // Log out the user
+        navigate("/login"); // Redirect to the login page
       } else {
-        console.error("Erreur lors de la déconnexion");
+        console.error("Error during logout");
       }
     } catch (error) {
-      console.error("Erreur réseau :", error);
+      console.error("Network error:", error);
     }
   };
 
@@ -103,7 +101,7 @@ function Dashboard() {
 
   const handleSignOut = () => {
     console.log("User signed out");
-    // Redirection ou nettoyage ici
+    // Redirection or cleanup here
     setIsSignOutModalOpen(false);
   };
 
@@ -121,20 +119,19 @@ function Dashboard() {
 
   const changeTab = (tab) => {
     setSelectedTab(tab);
-    localStorage.setItem("selectedTab", tab); // Sauvegarde dans localStorage
+    localStorage.setItem("selectedTab", tab); // Save to localStorage
   };
 
-
-  // Pendant que la vérification d'authentification est en cours, afficher un loader
-  // **Étape critique** : Ne pas afficher le contenu tant que la vérification n'est pas terminée
+  // During the authentication check, display a loader
+  // Critical step: Do not display content until verification is complete
   if (isLogginActive === null) {
-    // Chargeur ou page d'attente pendant la vérification
+    // Loader or waiting page during verification
     return (
       <main className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
         <div className="flex flex-col items-center justify-center p-6 bg-white dark:bg-gray-900">
-          {/* Loader amélioré */}
+          {/* Enhanced loader */}
           <div className="loader w-16 h-16 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-          {/* Texte stylé */}
+          {/* Styled text */}
           <h2 className="mt-4 text-xl font-semibold text-gray-700 dark:text-white">
             Loading...
           </h2>
@@ -149,7 +146,7 @@ function Dashboard() {
         {/* Navbar */}
         <nav className="fixed top-0 z-50 w-full bg-white border-b dark:bg-gray-800 dark:border-gray-700">
           <div className="flex items-center justify-between px-4 py-3">
-            {/* Hamburger Button - Visible uniquement sur les petits écrans */}
+            {/* Hamburger Button - Visible only on small screens */}
             <button
               className="p-2 text-gray-500 rounded-lg hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 md:hidden"
               onClick={toggleSidebar}
@@ -206,7 +203,6 @@ function Dashboard() {
                     to="/marketplace"
                     className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedTab === "marketplace" ? "bg-gray-100 dark:bg-gray-700" : ""
                       }`}
-
                     onClick={() => changeTab("marketplace")}
                   >
                     <svg
@@ -231,61 +227,50 @@ function Dashboard() {
                 </li>
 
                 <li className="my-2">
-                  {/* <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"> */}
-                  {/* <a
-                          href="#"
-                          className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${
-                              selectedTab === "wallet" ? "bg-gray-100 dark:bg-gray-700" : ""
-                          }`}
-                          onClick={() => changeTab("wallet")}
-                      > */}
-
                   <Link
                     to="/wallet"
                     className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedTab === "wallet" ? "bg-gray-100 dark:bg-gray-700" : ""
                       }`}
-                    onClick={() => changeTab("wallet")}>
-
-                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M12 14a3 3 0 0 1 3-3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4v-2h-4Z" clip-rule="evenodd" />
-                      <path fill-rule="evenodd" d="M12.293 3.293a1 1 0 0 1 1.414 0L16.414 6h-2.828l-1.293-1.293a1 1 0 0 1 0-1.414ZM12.414 6 9.707 3.293a1 1 0 0 0-1.414 0L5.586 6h6.828ZM4.586 7l-.056.055A2 2 0 0 0 3 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2h-4a5 5 0 0 1 0-10h4a2 2 0 0 0-1.53-1.945L17.414 7H4.586Z" clip-rule="evenodd" />
+                    onClick={() => changeTab("wallet")}
+                  >
+                    <svg className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M12 14a3 3 0 0 1 3-3h4a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-4a3 3 0 0 1-3-3Zm3-1a1 1 0 1 0 0 2h4v-2h-4Z" clipRule="evenodd" />
+                      <path fillRule="evenodd" d="M12.293 3.293a1 1 0 0 1 1.414 0L16.414 6h-2.828l-1.293-1.293a1 1 0 0 1 0-1.414ZM12.414 6 9.707 3.293a1 1 0 0 0-1.414 0L5.586 6h6.828ZM4.586 7l-.056.055A2 2 0 0 0 3 9v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2h-4a5 5 0 0 1 0-10h4a2 2 0 0 0-1.53-1.945L17.414 7H4.586Z" clipRule="evenodd" />
                     </svg>
 
                     <span className="absolute pl-6">
-                      <span class="flex-1 ms-3 whitespace-nowrap">Wallet</span>
-                      <span class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
+                      <span className="flex-1 ms-3 whitespace-nowrap">Wallet</span>
+                      <span className="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300">3</span>
                     </span>
                   </Link>
                 </li>
                 <li className="my-2">
-                  {/* <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"> */}
                   <Link
                     to="/generateimage"
                     className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedTab === "generateimage" ? "bg-gray-100 dark:bg-gray-700" : ""
                       }`}
                     onClick={() => changeTab("generateimage")}
                   >
-                    <svg class="w-6 h-6 text-gray-800 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-gray-800 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12.8638 3.49613C12.6846 3.18891 12.3557 3 12 3s-.6846.18891-.8638.49613l-3.49998 6c-.18042.30929-.1817.69147-.00336 1.00197S8.14193 11 8.5 11h7c.3581 0 .6888-.1914.8671-.5019.1784-.3105.1771-.69268-.0033-1.00197l-3.5-6ZM4 13c-.55228 0-1 .4477-1 1v6c0 .5523.44772 1 1 1h6c.5523 0 1-.4477 1-1v-6c0-.5523-.4477-1-1-1H4Zm12.5-1c-2.4853 0-4.5 2.0147-4.5 4.5s2.0147 4.5 4.5 4.5 4.5-2.0147 4.5-4.5-2.0147-4.5-4.5-4.5Z" />
                     </svg>
                     <span className="absolute pl-6">
-                      <span class="flex-1 ms-3 whitespace-nowrap">Generate Image</span>
+                      <span className="flex-1 ms-3 whitespace-nowrap">Generate Image</span>
                     </span>
                   </Link>
                 </li>
                 <li className="my-2">
-                  {/* <a href="#" class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"> */}
                   <Link
                     to="/history"
                     className={`flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group ${selectedTab === "history" ? "bg-gray-100 dark:bg-gray-700" : ""
                       }`}
                     onClick={() => changeTab("history")}
                   >
-                    <svg class="w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                      <path fill-rule="evenodd" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11.5c.07 0 .14-.007.207-.021.095.014.193.021.293.021h2a2 2 0 0 0 2-2V7a1 1 0 0 0-1-1h-1a1 1 0 1 0 0 2v11h-2V5a2 2 0 0 0-2-2H5Zm7 4a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm-6 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1ZM7 6a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H7Zm1 3V8h1v1H8Z" clip-rule="evenodd" />
+                    <svg className="w-6 h-6 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                      <path fillRule="evenodd" d="M5 3a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11.5c.07 0 .14-.007.207-.021.095.014.193.021.293.021h2a2 2 0 0 0 2-2V7a1 1 0 0 0-1-1h-1a1 1 0 1 0 0 2v11h-2V5a2 2 0 0 0-2-2H5Zm7 4a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h.5a1 1 0 1 1 0 2H13a1 1 0 0 1-1-1Zm-6 4a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1Zm0 3a1 1 0 0 1 1-1h6a1 1 0 1 1 0 2H7a1 1 0 0 1-1-1ZM7 6a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1H7Zm1 3V8h1v1H8Z" clipRule="evenodd" />
                     </svg>
                     <span className="absolute pl-6">
-                      <span class="ms-3">History</span>
+                      <span className="ms-3">History</span>
                     </span>
                   </Link>
                 </li>
@@ -298,7 +283,7 @@ function Dashboard() {
                     {isLogginActive ? (
                       <>
                         <svg className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
+                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
                         </svg>
                         <span className="absolute pl-6">
                           <span className="ms-3 whitespace-nowrap">Sign out</span>
@@ -307,7 +292,7 @@ function Dashboard() {
                     ) : (
                       <>
                         <svg className="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 16">
-                          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
+                          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 8h11m0 0L8 4m4 4-4 4m4-11h3a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-3" />
                         </svg>
                         <span className="absolute pl-6">
                           <span className="ms-3 whitespace-nowrap">Sign in</span>
@@ -323,7 +308,6 @@ function Dashboard() {
                       balance : ${balance.toFixed(2)}
                     </span>
                   </div>
-
                 </li>
 
               </ul>
@@ -332,9 +316,7 @@ function Dashboard() {
         </aside>
 
         {/* Main Content */}
-        <section
-          className={`pt-16 transition-all pl-0 md:pl-64 w-full h-full`}
-        >
+        <section className={`pt-16 transition-all pl-0 md:pl-64 w-full h-full`}>
           <div className="h-full w-full">
             {/* {isSignOutModalOpen && <SignOutModal isOpen={isSignOutModalOpen} onConfirm={handleLogout} onClose={closeSignOutModal} />} */}
             <Outlet />
@@ -343,8 +325,6 @@ function Dashboard() {
       </main>
     )
   );
-
-
 }
 
 export default Dashboard;
