@@ -25,6 +25,7 @@ manifests:
     - k8s/backend/backend-config.yaml
     - k8s/backend/backend-deployment.yaml
     - k8s/backend/backend-service.yaml
+    - k8s/frontend/frontend-config.yaml
     - k8s/frontend/frontend-deployment.yaml
     - k8s/frontend/frontend-service.yaml
     - k8s/config/ingress.yaml

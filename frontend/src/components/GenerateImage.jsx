@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import ClipLoader from "react-spinners/ClipLoader";
 import { Toast } from "flowbite-react";
-import { HiCheck } from "react-icons/hi";
+import { HiCheck, HiExclamation } from "react-icons/hi";
+
 
 function GenerateImage() {
     const [prompt, setPrompt] = useState("");
@@ -10,7 +11,22 @@ function GenerateImage() {
     const [isLoading, setIsLoading] = useState(false);
     const [showToast, setShowToast] = useState(false);
 
-    const API_URL = import.meta.env.VITE_API_URL;
+    const [toastMessage, setToastMessage] = useState("");
+    const [toastType, setToastType] = useState("success");
+
+    const handleShowToast = (message, type = "success") => {
+        setToastMessage(message);
+        setToastType(type);
+        setShowToast(true);
+
+        setTimeout(() => {
+            setShowToast(false);
+        }, 5000); // Cache le toast après 5 secondes
+    };
+
+
+
+    const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
 
     const generateSeed = () => {
         const randomSeed = Math.floor(Math.random() * Math.pow(2, 32)); // Génère un entier aléatoire sur 32 bits
@@ -19,13 +35,20 @@ function GenerateImage() {
 
     const handleGenerateImage = () => {
         //ensure promp and seed are not empty
+        // if (!prompt) {
+        //     alert("Please enter a prompt");
+        // }
+        // else if (!seed) {
+        //     alert("Please generate a seed");
+        // }
+
         if (!prompt) {
-            alert("Please enter a prompt");
-        }
-        else if (!seed) {
-            alert("Please generate a seed");
-        }
-        else {
+            handleShowToast("Please enter a prompt", "error");
+            return;
+        } else if (!seed) {
+            handleShowToast("Please generate a seed", "error");
+            return;
+        } else {
             setIsLoading(true);
             setTimeout(() => {
                 setImageUrl("https://placehold.co/600x400");
@@ -43,7 +66,8 @@ function GenerateImage() {
 
     const handleSaveImage = async () => {
         if (!imageUrl) {
-            alert("No image to save!");
+            // alert("No image to save!");
+            handleShowToast("No image to save!", "error");
             return;
         }
 
@@ -61,15 +85,22 @@ function GenerateImage() {
                 }),
             });
 
+            // if (response.ok) {
+            //     setShowToast(true); // Affiche le toast
+            //     setTimeout(() => {
+            //         setShowToast(false); // Cache le toast après 3 secondes
+            //     }, 3000);
+            // } else {
+            //     const errorData = await response.json();
+            //     alert(errorData.message || "Failed to save the image to the wallet.");
+            // }
             if (response.ok) {
-                setShowToast(true); // Affiche le toast
-                setTimeout(() => {
-                    setShowToast(false); // Cache le toast après 3 secondes
-                }, 3000);
+                handleShowToast("Image added to the wallet!", "success");
             } else {
                 const errorData = await response.json();
-                alert(errorData.message || "Failed to save the image to the wallet.");
+                handleShowToast(errorData.message || "Failed to save the image to the wallet.", "error");
             }
+
         } catch (error) {
             console.error("Error saving image to wallet:", error);
             alert("An error occurred while saving the image.");
@@ -153,7 +184,7 @@ function GenerateImage() {
                 </div>
 
                 {/* Toast Notification */}
-                {showToast && (
+                {/* {showToast && (
                     <div className="fixed bottom-4 right-4 z-50">
                         <Toast>
                             <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
@@ -162,6 +193,22 @@ function GenerateImage() {
                             <div className="ml-3 text-sm font-normal">
                                 Image added to the wallet!
                             </div>
+                        </Toast>
+                    </div>
+                )} */}
+                {showToast && (
+                    <div className="fixed bottom-4 right-4 z-50">
+                        <Toast>
+                            {toastType === "error" ? (
+                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-500 dark:bg-red-800 dark:text-red-200">
+                                    <HiExclamation className="h-5 w-5" />
+                                </div>
+                            ) : (
+                                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100 text-green-500 dark:bg-green-800 dark:text-green-200">
+                                    <HiCheck className="h-5 w-5" />
+                                </div>
+                            )}
+                            <div className="ml-3 text-sm font-normal">{toastMessage}</div>
                         </Toast>
                     </div>
                 )}

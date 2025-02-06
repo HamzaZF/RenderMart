@@ -9,7 +9,7 @@ function SignUp() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
 
   useEffect(() => {
     if (darkMode) {

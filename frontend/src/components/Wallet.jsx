@@ -10,7 +10,7 @@ function Wallet() {
     const [toastMessage, setToastMessage] = useState(null); // Message for the toast
     const [toastType, setToastType] = useState("success"); // Toast type: success / error
 
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
 
     // Display a temporary toast
     const showToast = (message, type = "success") => {

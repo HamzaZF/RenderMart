@@ -7,7 +7,7 @@ function History() {
   const [loading, setLoading] = useState(true); // État de chargement
   const [error, setError] = useState(null); // État des erreurs
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
 
   const fetchHistory = async () => {
     try {

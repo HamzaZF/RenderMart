@@ -9,7 +9,7 @@ export const WalletProvider = ({ children }) => {
   const [loading, setLoading] = useState(false); // Indicates whether data is currently loading
   const [error, setError] = useState(null); // Indicates errors
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
 
   // Function to fetch data (called once)
   const fetchWalletImages = async () => {

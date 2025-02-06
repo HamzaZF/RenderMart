@@ -7,5 +7,5 @@ data:
   PORT: "3300"
   DB_HOST: "postgres.rendermart.svc.cluster.local"
   DB_NAME: "rendermart"
-  CORS_ORIGIN: "192.168.59.106"
+  CORS_ORIGIN: "192.168.227.128"
   REDIS_HOST: "rendermart-redis-master.default.svc.cluster.local"

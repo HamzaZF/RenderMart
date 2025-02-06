@@ -23,8 +23,7 @@ const PORT = 3300;
 // Security and CORS configuration
 app.use(helmet());
 app.use(cors({
-    //origin: "*",//"http://192.168.227.128",
-    origin: "http://localhost:8900",
+    origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
 app.use(express.json());
@@ -460,7 +459,7 @@ app.post("/api/marketplace/buy", isAuthenticated, async (req, res) => {
 const startServer = () => {
     try {
         app.listen(PORT, () => {
-            console.log(`Server running on http://localhost:${PORT}`);
+            console.log(`Server running`);
         });
     } catch (error) {
         console.error("Server startup error:", error);

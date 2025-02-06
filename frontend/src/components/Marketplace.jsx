@@ -11,7 +11,7 @@ function Marketplace() {
   const [toastMessage, setToastMessage] = useState(""); // Message for the toast
   const [toastType, setToastType] = useState("success"); // "success" or "error"
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
 
   const fetchMarketplaceImages = async () => {
     setLoading(true); // Show the spinner during refresh

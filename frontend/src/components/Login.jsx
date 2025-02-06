@@ -9,7 +9,8 @@ function Login() {
 
   const navigate = useNavigate(); // Initialiser useNavigate
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  //const API_URL = process.env.VITE_INGRESS_IP;
+  const API_URL = import.meta.env.VITE_INGRESS_IP;//import.meta.env.VITE_INGRESS_IP
 
   useEffect(() => {
     if (darkMode) {
@@ -41,7 +42,7 @@ function Login() {
       }
     } catch (err) {
       console.error("Erreur réseau :", err);
-      setError("Erreur réseau. Veuillez réessayer plus tard.");
+      setError("Erreur réseau. Veuillez réessayer plus tard. " + err.message);
     }
   };
 
