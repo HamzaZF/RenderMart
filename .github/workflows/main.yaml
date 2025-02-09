@@ -31,6 +31,9 @@ jobs:
           chmod +x kubectl
           sudo mv kubectl /usr/local/bin/
 
+      - name: Configure kubectl for EKS
+        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+
       - name: Install Skaffold
         run: |
           curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
