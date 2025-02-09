@@ -34,6 +34,10 @@ jobs:
       - name: Configure kubectl for EKS
         run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
 
+      - name: Debug EKS Connection
+        run: |
+          aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
+
       - name: Test kubectl connection
         run: kubectl get nodes
 
