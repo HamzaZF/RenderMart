@@ -34,6 +34,9 @@ jobs:
       - name: Configure kubectl for EKS
         run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
 
+      - name: Test kubectl connection
+        run: kubectl get nodes
+
       - name: Install Skaffold
         run: |
           curl -Lo skaffold https://storage.googleapis.com/skaffold/releases/latest/skaffold-linux-amd64
@@ -41,4 +44,4 @@ jobs:
           sudo mv skaffold /usr/local/bin/
 
       - name: Deploy with Skaffold
-        run: skaffold run --default-repo ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+        run: skaffold run
