@@ -3,6 +3,8 @@ kind: Config
 metadata:
   name: rendermart
 build:
+  platforms:
+    - linux/amd64
   tagPolicy:
     customTemplate:
       template: "{{.IMAGE_NAME}}:latest"
