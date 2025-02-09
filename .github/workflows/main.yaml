@@ -38,6 +38,9 @@ jobs:
         run: |
           aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
+      - name: Vérifier le contexte `kubectl`
+        run: kubectl config current-context
+
       - name: Test kubectl connection
         run: kubectl get nodes -v=10
 
