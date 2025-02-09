@@ -3,7 +3,7 @@ name: Deploy to EKS with Skaffold
 on:
   push:
     branches:
-      - main  # Déclenchement sur push vers main
+      - main # Déclenchement sur push vers main
 
 jobs:
   deploy:
@@ -24,6 +24,12 @@ jobs:
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/
 
       - name: Install Skaffold
         run: |
