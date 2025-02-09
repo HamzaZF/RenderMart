@@ -21,6 +21,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Verify AWS Identity
+        run: aws sts get-caller-identity
+
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v2
@@ -32,7 +35,8 @@ jobs:
           sudo mv kubectl /usr/local/bin/
 
       - name: Configure kubectl for EKS
-        run: aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }}
+        run: |
+          aws eks update-kubeconfig --region ${{ secrets.AWS_REGION }} --name ${{ secrets.EKS_CLUSTER_NAME }} --role-arn arn:aws:iam::061039783359:role/YOUR_EKS_ROLE
 
       - name: Debug EKS Connection
         run: |
@@ -43,6 +47,21 @@ jobs:
 
       - name: Test kubectl connection
         run: kubectl get nodes -v=10
+
+      - name: Ensure IAM user is in aws-auth ConfigMap
+        run: |
+          USER_ARN="arn:aws:iam::061039783359:user/hamza"
+          if ! kubectl get configmap -n kube-system aws-auth -o yaml | grep -q "$USER_ARN"; then
+            echo "Adding user $USER_ARN to aws-auth"
+            kubectl get configmap -n kube-system aws-auth -o yaml > aws-auth.yaml
+            echo "  - userarn: $USER_ARN" >> aws-auth.yaml
+            echo "    username: hamza" >> aws-auth.yaml
+            echo "    groups:" >> aws-auth.yaml
+            echo "      - system:masters" >> aws-auth.yaml
+            kubectl apply -f aws-auth.yaml
+          else
+            echo "User $USER_ARN is already in aws-auth"
+          fi
 
       - name: Install Skaffold
         run: |
