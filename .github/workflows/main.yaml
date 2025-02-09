@@ -39,7 +39,7 @@ jobs:
           aws eks describe-cluster --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
 
       - name: Test kubectl connection
-        run: kubectl get nodes
+        run: kubectl get nodes -v=10
 
       - name: Install Skaffold
         run: |
