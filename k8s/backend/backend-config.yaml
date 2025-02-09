@@ -5,7 +5,7 @@ metadata:
   namespace: rendermart
 data:
   PORT: "3300"
-  DB_HOST: "postgres.rendermart.svc.cluster.local"
+  DB_HOST: "postgres.rendermart-db.svc.cluster.local"
   DB_NAME: "rendermart"
-  CORS_ORIGIN: "192.168.227.128"
+  CORS_ORIGIN: "k8s-renderma-ingress-77a757caa3-1662937834.us-east-1.elb.amazonaws.com"
   REDIS_HOST: "rendermart-redis-master.default.svc.cluster.local"

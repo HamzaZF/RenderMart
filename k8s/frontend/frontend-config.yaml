@@ -4,4 +4,4 @@ metadata:
   name: frontend-config
   namespace: rendermart
 data:
-  VITE_INGRESS_IP: "http://192.168.227.128"
+  VITE_INGRESS_IP: "http://k8s-renderma-ingress-77a757caa3-1662937834.us-east-1.elb.amazonaws.com"

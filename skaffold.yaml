@@ -3,24 +3,28 @@ kind: Config
 metadata:
   name: rendermart
 build:
+  tagPolicy:
+    customTemplate:
+      template: "{{.IMAGE_NAME}}:latest"
+  local:
+    push: true
   artifacts:
-    - image: hamzazf/rendermart-backend
+    - image: 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-backend
       context: backend
       docker:
         dockerfile: Dockerfile
-    - image: hamzazf/rendermart-frontend
+    - image: 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-frontend
       context: frontend
       docker:
         dockerfile: Dockerfile
-  local:
-    push: true
 manifests:
   rawYaml:
-    - k8s/redis/redis-secret.yaml
-    - k8s/config/namespace.yaml
-    - k8s/postgres/postgres-pvc.yaml
+    - k8s/config/namespace-rendermart-db.yaml
+    - k8s/config/namespace-rendermart.yaml
+    - k8s/postgres/postgres-secret-db.yaml
     - k8s/postgres/postgres-secret.yaml
     - k8s/postgres/postgres-service.yaml
+    - k8s/postgres/postgres-pvc.yaml
     - k8s/postgres/postgres-statefulset.yaml
     - k8s/backend/backend-config.yaml
     - k8s/backend/backend-deployment.yaml
@@ -28,4 +32,5 @@ manifests:
     - k8s/frontend/frontend-config.yaml
     - k8s/frontend/frontend-deployment.yaml
     - k8s/frontend/frontend-service.yaml
+    - k8s/redis/redis-secret.yaml
     - k8s/config/ingress.yaml

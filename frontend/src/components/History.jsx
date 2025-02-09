@@ -12,9 +12,10 @@ function History() {
   const fetchHistory = async () => {
     try {
       setError(null); // Réinitialiser les erreurs
+      console.log(`URL de la requête :${API_URL}:80/api/history`);
 
       const response = await fetch(`${API_URL}:80/api/history`, {
-        method: "GET",
+        //method: "GET",
         credentials: "include", // Nécessaire pour inclure les cookies de session
       });
 
@@ -79,12 +80,18 @@ function History() {
   if (error) {
     return (
       <main className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
-        <p className="text-red-500 dark:text-red-400">
-          An error occurred
-        </p>
+        <div className="text-center">
+          <p className="text-red-500 dark:text-red-400 font-semibold">
+            An error occurred:
+          </p>
+          <p className="text-gray-700 dark:text-gray-300 mt-2">
+            {error}
+          </p>
+        </div>
       </main>
     );
   }
+  
 
   return (
     <main className="min-h-screen bg-gray-100 dark:bg-gray-900 p-6">

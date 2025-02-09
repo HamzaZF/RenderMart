@@ -33,7 +33,7 @@ function GenerateImage() {
         setSeed(randomSeed);
     };
 
-    const handleGenerateImage = () => {
+    const handleGenerateImage = async () => {
         //ensure promp and seed are not empty
         // if (!prompt) {
         //     alert("Please enter a prompt");
@@ -45,15 +45,42 @@ function GenerateImage() {
         if (!prompt) {
             handleShowToast("Please enter a prompt", "error");
             return;
-        } else if (!seed) {
-            handleShowToast("Please generate a seed", "error");
-            return;
         } else {
             setIsLoading(true);
-            setTimeout(() => {
-                setImageUrl("https://placehold.co/600x400");
-                setIsLoading(false);
-            }, 2000);
+            // setTimeout(() => {
+            //     setImageUrl("https://placehold.co/600x400");
+            //     setIsLoading(false);
+            // }, 2000);
+            try {
+                // const response = await fetch("https://ahvnkho6f9.execute-api.us-east-1.amazonaws.com/generate-image", {
+                //     method: "POST",
+                //     headers: {
+                //         "Content-Type": "application/json",
+                //     },
+                //     body: JSON.stringify({ prompt })
+                // });
+                const response = await fetch("https://ahvnkho6f9.execute-api.us-east-1.amazonaws.com/generate-image", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ prompt, seed: Math.floor(Math.random() * 1000000) }) // Génère une seed aléatoire
+                });
+                
+
+                const data = await response.json();
+
+                if (data.image_url) {
+                    setImageUrl(data.image_url);
+                } else {
+                    handleShowToast("Failed to generate image", "error");
+                }
+            } catch (error) {
+                console.error("Error generating image:", error);
+                handleShowToast("Server error", "error");
+            }
+
+            setIsLoading(false);
         }
     };
 
@@ -130,7 +157,7 @@ function GenerateImage() {
                         />
                     </div>
 
-                    {/* Seed Generation */}
+                    {/* Seed Generation
                     <div className="flex items-center gap-4 mb-6">
                         <button
                             onClick={generateSeed}
@@ -145,7 +172,7 @@ function GenerateImage() {
                             placeholder="Generated seed"
                             className="px-4 py-2 w-full border rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700 focus:ring-blue-500 focus:border-blue-500"
                         />
-                    </div>
+                    </div> */}
 
                     {/* Generate Image Button */}
                     <div className="mb-6">

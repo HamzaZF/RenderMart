@@ -3,13 +3,11 @@ kind: Ingress
 metadata:
   name: ingress
   namespace: rendermart
-  # annotations:
-  #   nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
-  #   nginx.ingress.kubernetes.io/proxy-cookie-path: "/;/"
-  #   nginx.ingress.kubernetes.io/session-cookie-name: "session_token"
-  #   nginx.ingress.kubernetes.io/session-cookie-samesite: "Lax"
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
 spec:
-  ingressClassName: nginx
+  ingressClassName: alb
   rules:
     - http:
         paths:

@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: postgres
-  namespace: rendermart
+  namespace: rendermart-db
 spec:
   serviceName: postgres
   replicas: 1
@@ -14,6 +14,8 @@ spec:
       labels:
         app: postgres
     spec:
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: efs-nodegroup
       containers:
         - name: postgres
           image: postgres:15

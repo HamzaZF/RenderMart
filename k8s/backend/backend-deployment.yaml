@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: backend
-          image: hamzazf/rendermart-backend:latest
+          image: 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-backend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 3300
           envFrom:
@@ -23,8 +24,6 @@ spec:
                 name: backend-config
             - secretRef:
                 name: postgres-secret
-            - secretRef:
-                name: redis-secret
           resources:
             requests:
               memory: "64Mi"

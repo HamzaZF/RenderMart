@@ -15,7 +15,8 @@ spec:
     spec:
       containers:
         - name: frontend
-          image: hamzazf/rendermart-frontend:latest
+          image: 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-frontend:latest
+          imagePullPolicy: Always
           ports:
             - containerPort: 80
           envFrom:
