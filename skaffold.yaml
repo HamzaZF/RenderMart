@@ -34,5 +34,4 @@ manifests:
     - k8s/frontend/frontend-config.yaml
     - k8s/frontend/frontend-deployment.yaml
     - k8s/frontend/frontend-service.yaml
-    - k8s/redis/redis-secret.yaml
     - k8s/config/ingress.yaml

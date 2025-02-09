@@ -152,7 +152,7 @@ function GenerateImage() {
                             type="text"
                             value={prompt}
                             onChange={(e) => setPrompt(e.target.value)}
-                            placeholder="Describe the image..."
+                            placeholder="describe the image..."
                             className="block w-full px-4 py-2 border rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-700 focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>
