@@ -7,24 +7,24 @@ RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **
 ## 🚀 Fonctionnalités principales
 
 ### 🎨 Génération d'images IA
-- Utilisation de **AWS Bedrock** pour générer des images de haute qualité
-- Personnalisation des images selon les préférences des utilisateurs
+- Utilisation de **AWS Bedrock** pour générer des images de haute qualité.
+- Personnalisation des images selon les préférences des utilisateurs.
 
 ### ☁️ Stockage et Accessibilité Cloud
-- **Stockage des images sur AWS S3**
-- **API Gateway et AWS Lambda** pour une exposition sécurisée et évolutive
+- **Stockage des images sur AWS S3** pour une accessibilité et une scalabilité optimale.
+- **API Gateway et AWS Lambda** pour exposer de manière sécurisée les fonctionnalités de génération et gestion d'images.
 
 ### 🏗️ Architecture microservices
-- **Backend** : API REST via **Node.js & Express**
-- **Frontend** : Interface moderne développée en **React.js & Vite**
-- **Base de données** : PostgreSQL avec stockage persistant
-- **Communication interne** : Services Kubernetes avec **Ingress Controller**
+- **Backend** : API REST développée avec **Node.js & Express**.
+- **Frontend** : Interface utilisateur moderne avec **React.js & Vite**.
+- **Base de données** : PostgreSQL avec stockage persistant.
+- **Communication interne** : Utilisation des **Services Kubernetes et Ingress Controller** pour la connectivité.
 
 ### ☁️ Déploiement et scalabilité cloud-native
-- Conteneurisation avec **Docker**
-- Orchestration des microservices avec **Kubernetes**
-- Load Balancing et exposition des services via **AWS Load Balancer Controller**
-- CI/CD avec **GitHub Actions** et **Skaffold**
+- Conteneurisation avec **Docker** pour une gestion simplifiée des services.
+- Orchestration et gestion des ressources avec **Kubernetes**.
+- Gestion du trafic avec **AWS Load Balancer Controller**.
+- Automatisation des builds et déploiements avec **GitHub Actions** et **Skaffold**.
 
 ---
 
@@ -35,7 +35,7 @@ RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **
 - **AWS Lambda** (Exécution des fonctions serverless)
 - **API Gateway** (Gestion des accès et endpoints)
 - **AWS EKS** (Orchestration des conteneurs)
-- **AWS ECR** (Stockage des images Docker)
+- **AWS ECR** (Registry pour stocker les images Docker)
 
 ### 🏗️ Orchestration & Conteneurisation
 - **Kubernetes** (Orchestration des microservices)
@@ -76,169 +76,61 @@ RenderMart est conçu pour être déployé sur **AWS** et nécessite les outils 
 
 ---
 
-## 📁 Manifests Kubernetes - Architecture et Explication
+## 📁 Kubernetes - Explication des fichiers de configuration
 
-L’architecture de **RenderMart** repose sur **Kubernetes** pour orchestrer ses composants. Chaque fichier manifest définit un élément clé du système.
+L'architecture de **RenderMart** repose sur Kubernetes pour assurer la résilience et la scalabilité des services. Voici les fichiers Kubernetes principaux et leur rôle.
 
-### 📌 1. Ingress Controller (`ingress.yaml`)
+### 📌 Ingress Controller (`ingress.yaml`)
 
-**Rôle :**  
-L’Ingress Controller permet de gérer le routage des requêtes entre les services internes (backend et frontend). Il assure la **gestion des entrées** vers l'application et l'intégration avec le **AWS Load Balancer Controller**.
+Définit les règles de routage pour acheminer le trafic vers les services internes de l'application.
 
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: rendermart-ingress
-spec:
-  rules:
-  - host: myapp.example.com
-    http:
-      paths:
-      - path: /api/
-        pathType: Prefix
-        backend:
-          service:
-            name: backend-service
-            port:
-              number: 4000
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: frontend-service
-            port:
-              number: 80
-```
+- Expose le frontend et le backend via un **AWS Load Balancer**.
+- Route `/api/` vers le backend et `/` vers le frontend.
 
-🔹 **Pourquoi est-ce important ?**  
-- Redirige `/api/` vers le backend et `/` vers le frontend.
-- Permet d’exposer l’application au public via un Load Balancer AWS.
+### 🔹 Backend Deployment (`backend-deployment.yaml`)
 
----
+Décrit comment le backend est déployé en tant que **pods répliqués**.
 
-### 🔹 2. Backend Deployment (`backend-deployment.yaml`)
+- Exécute l’image Docker du backend stockée dans **ECR**.
+- Crée **2 réplicas** pour assurer la disponibilité.
+- Définit l'accès sur le **port 4000**.
 
-**Rôle :**  
-Ce fichier définit le déploiement du backend sous forme de **pods répliqués** dans Kubernetes.
+### 🔹 Backend Service (`backend-service.yaml`)
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: backend-deployment
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: backend
-  template:
-    metadata:
-      labels:
-        app: backend
-    spec:
-      containers:
-      - name: backend
-        image: <AWS_ECR_BACKEND_IMAGE>
-        ports:
-        - containerPort: 4000
-```
+Expose le backend à l’intérieur du cluster Kubernetes.
 
-🔹 **Pourquoi est-ce important ?**  
-- Crée **2 replicas** du backend pour la haute disponibilité.
-- Stocke l’image Docker du backend dans **AWS ECR**.
-- Définit un **service Kubernetes** qui permet aux autres composants de communiquer avec lui.
+- Définit un **Service Kubernetes** en mode `ClusterIP`.
+- Permet aux autres services internes d’accéder au backend.
 
----
+### 🔹 Frontend Deployment (`frontend-deployment.yaml`)
 
-### 🔹 3. Backend Service (`backend-service.yaml`)
+Décrit le déploiement du frontend.
 
-**Rôle :**  
-Le service expose le backend à l’intérieur du cluster et permet la communication avec d’autres composants (Ingress, Frontend, Base de données).
+- Déploie l’image Docker du frontend (stockée dans **ECR**).
+- Exécute le serveur **Nginx** pour servir l’interface utilisateur.
+- Définit **2 réplicas** pour la haute disponibilité.
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-spec:
-  selector:
-    app: backend
-  ports:
-    - protocol: TCP
-      port: 4000
-      targetPort: 4000
-  type: ClusterIP
-```
+### 🔹 Frontend Service (`frontend-service.yaml`)
 
----
+Expose le frontend pour qu’il puisse être accessible via **Ingress**.
 
-### 🔹 4. Frontend Deployment (`frontend-deployment.yaml`)
+- Définit un **Service Kubernetes** pour le frontend.
+- Assure la communication entre le frontend et le Load Balancer.
 
-Déploie le **frontend React.js** sous forme de pods.
+### 🗄️ PostgreSQL StatefulSet (`postgres-statefulset.yaml`)
 
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend-deployment
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: frontend
-  template:
-    metadata:
-      labels:
-        app: frontend
-    spec:
-      containers:
-      - name: frontend
-        image: <AWS_ECR_FRONTEND_IMAGE>
-        ports:
-        - containerPort: 80
-```
+Définit la base de données PostgreSQL en mode **StatefulSet** pour assurer la persistance des données.
 
----
+- Garantit que PostgreSQL conserve ses données même après un redémarrage.
+- Associe un **Volume Persistant** basé sur **EBS CSI**.
+- Définit une demande de stockage de **10Gi** pour la base de données.
 
-### 🗄️ 5. PostgreSQL StatefulSet (`postgres-statefulset.yaml`)
+### 🔹 PostgreSQL Service (`postgres-service.yaml`)
 
-Définit la base de données PostgreSQL avec un **stockage persistant**.
+Expose PostgreSQL au sein du cluster.
 
-```yaml
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres-db
-spec:
-  serviceName: "postgres"
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      containers:
-      - name: postgres
-        image: postgres:latest
-        ports:
-        - containerPort: 5432
-        volumeMounts:
-        - mountPath: /var/lib/postgresql/data
-          name: postgres-storage
-  volumeClaimTemplates:
-  - metadata:
-      name: postgres-storage
-    spec:
-      accessModes: ["ReadWriteOnce"]
-      storageClassName: "gp2"
-      resources:
-        requests:
-          storage: 10Gi
-```
+- Définit un **Service Kubernetes** permettant au backend d’accéder à PostgreSQL.
+- Fonctionne en mode `ClusterIP` pour une communication interne sécurisée.
 
 ---
 
