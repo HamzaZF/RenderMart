@@ -302,7 +302,6 @@ spec:
 
 ---
 
-## 📞 Support
+## License
 
-If you have any questions, open an issue or contact us at `support@rendermart.com`.
-
+This project is licensed under the MIT License.
