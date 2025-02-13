@@ -59,7 +59,7 @@ RenderMart is a **cloud-native platform** that empowers users to create **AI-gen
 
 ---
 
-## ![Kubernetes Logo](https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg | width=50) Kubernetes Cluster Architecture & Configuration
+## ⚙️ Kubernetes Cluster Architecture & Configuration
 
 The **RenderMart** architecture relies on Kubernetes to ensure service resilience and scalability. Below are the key Kubernetes files and their roles.
 
