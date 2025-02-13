@@ -1,145 +1,222 @@
-# RenderMart - Déploiement Kubernetes sur AWS EKS
+# RenderMart - Application Cloud-Native sur AWS EKS
 
-RenderMart est une application web complète comprenant un **backend Node.js**, un **frontend React.js** et une **base de données PostgreSQL**.  
-Ce projet est conçu pour être déployé sur **AWS EKS** avec **Skaffold** pour automatiser la gestion des builds et déploiements.
+RenderMart est une **plateforme de e-commerce cloud-native** conçue pour fonctionner en **architecture microservices**.  
+L'application est déployée sur **AWS EKS (Elastic Kubernetes Service)** et utilise des technologies modernes pour assurer une scalabilité et une résilience optimales.
 
 ---
 
-## 📌 Technologies utilisées
+## 🚀 Fonctionnalités principales
 
-### Backend
-- **Node.js** avec **Express.js** (API REST)
-- Gestion des dépendances avec **npm**
+### 🛒 Gestion des produits et commandes
+- Ajout, modification et suppression de produits via une API REST
+- Gestion des commandes et des paiements
+- Interface utilisateur fluide et réactive
+
+### 🏗️ Architecture microservices
+- **Backend** : API REST développée avec **Node.js & Express**
+- **Frontend** : Application React.js avec **Vite & TailwindCSS**
+- **Base de données** : **PostgreSQL** avec stockage persistant sur **EBS CSI Driver**
+- **Communication interne** via **Kubernetes Services & Ingress Controller**
+
+### ☁️ Déploiement et scalabilité cloud-native
 - Conteneurisation avec **Docker**
-
-### Frontend
-- **React.js** avec **Vite** (pour des builds rapides)
-- **TailwindCSS** (pour le styling)
-- **Nginx** (pour servir les fichiers statiques)
-- Gestion des dépendances avec **npm**
-
-### Base de données
-- **PostgreSQL** (déployé en StatefulSet)
-- Stockage persistant via **EBS CSI Driver**
-
-### Infrastructure et Déploiement
-- **AWS EKS** (Elastic Kubernetes Service)
-- **AWS ECR** (Elastic Container Registry)
-- **Helm** (pour AWS Load Balancer Controller)
-- **Skaffold** (pour automatiser le build et le déploiement)
-- **Github Actions** (CI/CD)
+- Orchestration des microservices avec **Kubernetes**
+- Stockage persistant pour la base de données grâce à **EBS CSI Driver**
+- Load Balancing et exposition des services via **AWS Load Balancer Controller**
+- Gestion automatisée du build et du déploiement avec **Skaffold**
+- CI/CD via **GitHub Actions**
 
 ---
 
-## 🚀 Déploiement sur AWS EKS
+## 🛠️ Technologies utilisées
 
-### 1️⃣ Prérequis
-
-Avant de commencer, assurez-vous d'avoir :
-
-- **AWS CLI** installé et configuré
-- **eksctl** installé (`brew install eksctl` ou `choco install eksctl`)
-- **kubectl** installé (`brew install kubectl` ou `choco install kubectl`)
-- **Docker** installé et en cours d'exécution
-- **Helm** installé (`brew install helm` ou `choco install kubernetes-helm`)
-- **Skaffold** installé (`brew install skaffold` ou `choco install skaffold`)
-
-### 2️⃣ Création du cluster EKS
-
-```bash
-eksctl create cluster --name rendermart --region us-east-1 --fargate
-aws eks update-kubeconfig --name rendermart --region us-east-1
-eksctl utils associate-iam-oidc-provider --cluster rendermart --approve
-```
-
-### 3️⃣ Installation du AWS Load Balancer Controller
-
-```bash
-helm repo add eks https://aws.github.io/eks-charts
-
-helm install aws-load-balancer-controller eks/aws-load-balancer-controller   -n kube-system   --set clusterName=rendermart   --set serviceAccount.create=false   --set serviceAccount.name=aws-load-balancer-controller   --set region=us-east-1
-```
-
-### 4️⃣ Création du NodeGroup (Obligatoire pour PostgreSQL)
-
-```bash
-eksctl create nodegroup --cluster rendermart   --name efs-nodegroup   --node-type t3.large   --nodes 2 --nodes-min 1 --nodes-max 3   --node-volume-size 20 --region us-east-1
-```
-
-### 5️⃣ Installation du EBS CSI Driver
-
-```bash
-eksctl create iamserviceaccount   --region us-east-1   --name ebs-csi-controller-sa   --namespace kube-system   --cluster rendermart   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve
-
-eksctl create addon --name aws-ebs-csi-driver --cluster rendermart   --service-account-role-arn arn:aws:iam::<ACCOUNT_ID>:role/AmazonEKS_EBS_CSI_DriverRole --force
-```
-
-### 6️⃣ Création des repositories ECR et Authentification
-
-```bash
-aws ecr create-repository --repository-name rendermart-backend
-aws ecr create-repository --repository-name rendermart-frontend
-
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com
-```
-
-### 7️⃣ Déploiement via Skaffold
-
-#### 🔹 Build et déploiement automatique
-
-```bash
-skaffold run
-```
-
-#### 🔹 Séparer les étapes (Optionnel)
-
-```bash
-skaffold build   # Construire et pousser les images
-skaffold deploy  # Déployer les manifests Kubernetes
-```
+- **Backend** : Node.js, Express, PostgreSQL
+- **Frontend** : React.js, Vite, TailwindCSS, Nginx
+- **Infrastructure** : Kubernetes, AWS EKS, EBS CSI, Ingress Controller, Helm
+- **CI/CD** : Docker, Skaffold, GitHub Actions
 
 ---
 
-## 📁 Structure du projet
+## 🏗️ Déploiement et outils nécessaires
 
-```
-rendermart/
-│── backend/               # Backend Node.js (Express)
-│   ├── index.js           # Point d'entrée
-│   ├── package.json       # Dépendances backend
-│   ├── Dockerfile         # Backend Dockerfile
-│
-│── frontend/              # Frontend React.js (Vite + Tailwind)
-│   ├── src/               # Code source React
-│   ├── package.json       # Dépendances frontend
-│   ├── Dockerfile         # Frontend Dockerfile
-│
-│── k8s/                   # Manifests Kubernetes
-│   ├── ingress.yaml       # Load balancer + routing
-│   ├── backend-deployment.yaml
-│   ├── frontend-deployment.yaml
-│   ├── postgres-statefulset.yaml
-│
-│── .github/workflows/      # CI/CD avec Github Actions
-│── skaffold.yaml           # Automatisation Skaffold
-```
+RenderMart est conçu pour être déployé sur **AWS** et nécessite les outils suivants :
+
+| Outil | Rôle |
+|---|---|
+| `eksctl` | Création et gestion du cluster EKS |
+| `kubectl` | Interaction avec Kubernetes |
+| `helm` | Installation des composants (Ingress, Load Balancer, etc.) |
+| `skaffold` | Automatisation des builds et du déploiement |
+| `aws-cli` | Gestion des ressources AWS |
+| `docker` | Création et gestion des conteneurs |
+
+> **Remarque** : Avant de commencer, assurez-vous que ces outils sont installés et configurés correctement.
 
 ---
 
-## 📜 Licence
+## 📁 Manifests Kubernetes
 
-Ce projet est sous licence MIT. Vous êtes libre de l'utiliser, de le modifier et de le distribuer.
+L’application suit une **approche microservices** avec plusieurs **manifests Kubernetes** qui définissent les ressources nécessaires.
+
+### 📌 Ingress Controller (`ingress.yaml`)
+Gère le routage des requêtes entre le frontend et le backend.
+
+```yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rendermart-ingress
+spec:
+  rules:
+  - host: myapp.example.com
+    http:
+      paths:
+      - path: /api/
+        pathType: Prefix
+        backend:
+          service:
+            name: backend-service
+            port:
+              number: 4000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: frontend-service
+            port:
+              number: 80
+```
+
+> **Pourquoi ?**  
+> Ce fichier permet de rediriger les requêtes : `/api/` vers le backend et `/` vers le frontend. Cela garantit une bonne isolation des services.
+
+### 🔹 Backend Deployment (`backend-deployment.yaml`)
+Déploie le **backend Node.js** sous forme de pods dans Kubernetes.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+      - name: backend
+        image: <AWS_ECR_BACKEND_IMAGE>
+        ports:
+        - containerPort: 4000
+```
+
+> **Pourquoi ?**  
+> - Définit **2 replicas** pour assurer la disponibilité du backend.
+> - Spécifie **l’image Docker du backend** stockée dans **ECR**.
+> - Ouvre le **port 4000** pour recevoir les requêtes API.
+
+### 🔹 Frontend Deployment (`frontend-deployment.yaml`)
+Déploie le **frontend React.js** sous forme de pods.
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+      - name: frontend
+        image: <AWS_ECR_FRONTEND_IMAGE>
+        ports:
+        - containerPort: 80
+```
+
+> **Pourquoi ?**  
+> - Définit **2 replicas** pour le frontend.
+> - Utilise **Nginx** pour servir l’application.
+> - Relie le frontend au **Load Balancer**.
+
+### 🗄️ PostgreSQL StatefulSet (`postgres-statefulset.yaml`)
+Définit la base de données PostgreSQL avec un **stockage persistant**.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-db
+spec:
+  serviceName: "postgres"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:latest
+        ports:
+        - containerPort: 5432
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: postgres-storage
+  volumeClaimTemplates:
+  - metadata:
+      name: postgres-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "gp2"
+      resources:
+        requests:
+          storage: 10Gi
+```
+
+> **Pourquoi ?**  
+> - Utilise un **StatefulSet** pour garantir un stockage **persistant**.
+> - Stocke les données PostgreSQL sur un volume EBS CSI.
+> - Définit un **VolumeClaimTemplate** de **10Gi** pour le stockage.
 
 ---
 
-## 🤝 Contribuer
+## 🛠️ Configuration et Secrets
 
-Si vous souhaitez contribuer :
-1. Forkez ce dépôt
-2. Créez une branche (`git checkout -b feature-ma-branche`)
-3. Effectuez vos modifications
-4. Poussez (`git push origin feature-ma-branche`)
-5. Ouvrez une Pull Request
+Avant le déploiement, **vous devez configurer certaines variables d’environnement**.
+
+1️⃣ **Définir l’URL du Load Balancer dans `frontend/.env`**
+
+```env
+VITE_INGRESS_IP=http://k8s-renderma-ingress-XXXXX.us-east-1.elb.amazonaws.com
+```
+
+2️⃣ **Configurer les secrets GitHub Actions**
+
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- `ECR_REGISTRY`
+
+3️⃣ **Définir l’URL de l’API Gateway dans `backend/.env`**
+
+```env
+AWS_LAMBDA_URL=https://my-api-id.execute-api.us-east-1.amazonaws.com/prod
+```
 
 ---
 
