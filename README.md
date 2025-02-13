@@ -206,7 +206,7 @@ spec:
               cpu: "500m"
 ```
 
-- Deploys the frontend Docker image (stored in **ECR**).
+- Deploys the frontend Docker image stored in **ECR**.
 - Runs the **Nginx** server to serve the user interface.
 - Defines **2 replicas** for high availability.
 
