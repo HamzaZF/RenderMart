@@ -4,84 +4,14 @@ RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **
 
 ---
 
-## 🚀 Fonctionnalités principales
+## 📁 Manifests Kubernetes - Architecture et Explication
 
-### 🎨 Génération d'images IA
-- Utilisation de **AWS Bedrock** pour générer des images de haute qualité
-- Personnalisation des images selon les préférences des utilisateurs
+L’architecture de **RenderMart** repose sur **Kubernetes** pour orchestrer ses composants. Chaque fichier manifest définit un élément clé du système.
 
-### ☁️ Stockage et Accessibilité Cloud
-- **Stockage des images sur AWS S3**
-- **API Gateway et AWS Lambda** pour une exposition sécurisée et évolutive
+### 📌 1. Ingress Controller (`ingress.yaml`)
 
-### 🏗️ Architecture microservices
-- **Backend** : API REST via **Node.js & Express**
-- **Frontend** : Interface moderne développée en **React.js & Vite**
-- **Base de données** : PostgreSQL avec stockage persistant
-- **Communication interne** : Services Kubernetes avec **Ingress Controller**
-
-### ☁️ Déploiement et scalabilité cloud-native
-- Conteneurisation avec **Docker**
-- Orchestration des microservices avec **Kubernetes**
-- Load Balancing et exposition des services via **AWS Load Balancer Controller**
-- CI/CD avec **GitHub Actions** et **Skaffold**
-
----
-
-## 🛠️ Technologies utilisées
-
-### 🌍 Cloud & Stockage
-- **AWS S3** (Stockage des images générées)
-- **AWS Lambda** (Exécution des fonctions serverless)
-- **API Gateway** (Gestion des accès et endpoints)
-- **AWS EKS** (Orchestration des conteneurs)
-- **AWS ECR** (Stockage des images Docker)
-
-### 🏗️ Orchestration & Conteneurisation
-- **Kubernetes** (Orchestration des microservices)
-- **Docker** (Conteneurisation des services)
-
-### 🖥️ Backend
-- **Node.js** (Exécution du serveur backend)
-- **Express.js** (Framework API REST)
-- **PostgreSQL** (Base de données relationnelle)
-
-### 🎨 Frontend
-- **React.js** (Framework UI)
-- **Vite** (Optimisation du frontend)
-- **TailwindCSS** (Framework CSS)
-- **Nginx** (Serveur pour le frontend)
-
-### ⚙️ CI/CD et Automatisation
-- **GitHub Actions** (Automatisation des builds et tests)
-- **Skaffold** (Automatisation du déploiement sur Kubernetes)
-- **Helm** (Gestion des composants Kubernetes)
-
----
-
-## 🏗️ Déploiement et outils nécessaires
-
-RenderMart est conçu pour être déployé sur **AWS** et nécessite les outils suivants :
-
-| Outil | Rôle |
-|---|---|
-| `eksctl` | Création et gestion du cluster EKS |
-| `kubectl` | Interaction avec Kubernetes |
-| `helm` | Installation des composants (Ingress, Load Balancer, etc.) |
-| `skaffold` | Automatisation des builds et du déploiement |
-| `aws-cli` | Gestion des ressources AWS |
-| `docker` | Création et gestion des conteneurs |
-
-> **Remarque** : Avant de commencer, assurez-vous que ces outils sont installés et configurés correctement.
-
----
-
-## 📁 Manifests Kubernetes
-
-L’application suit une **approche microservices** avec plusieurs **manifests Kubernetes** qui définissent les ressources nécessaires.
-
-### 📌 Ingress Controller (`ingress.yaml`)
-Gère le routage des requêtes entre le frontend et le backend.
+**Rôle :**  
+L’Ingress Controller permet de gérer le routage des requêtes entre les services internes (backend et frontend). Il assure la **gestion des entrées** vers l'application et l'intégration avec le **AWS Load Balancer Controller**.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -109,11 +39,16 @@ spec:
               number: 80
 ```
 
-> **Pourquoi ?**  
-> Ce fichier permet de rediriger les requêtes : `/api/` vers le backend et `/` vers le frontend. Cela garantit une bonne isolation des services.
+🔹 **Pourquoi est-ce important ?**  
+- Redirige `/api/` vers le backend et `/` vers le frontend.
+- Permet d’exposer l’application au public via un Load Balancer AWS.
 
-### 🔹 Backend Deployment (`backend-deployment.yaml`)
-Déploie le **backend Node.js** sous forme de pods dans Kubernetes.
+---
+
+### 🔹 2. Backend Deployment (`backend-deployment.yaml`)
+
+**Rôle :**  
+Ce fichier définit le déploiement du backend sous forme de **pods répliqués** dans Kubernetes.
 
 ```yaml
 apiVersion: apps/v1
@@ -137,13 +72,43 @@ spec:
         - containerPort: 4000
 ```
 
-> **Pourquoi ?**  
-> - Définit **2 replicas** pour assurer la disponibilité du backend.
-> - Spécifie **l’image Docker du backend** stockée dans **ECR**.
-> - Ouvre le **port 4000** pour recevoir les requêtes API.
+🔹 **Pourquoi est-ce important ?**  
+- Crée **2 replicas** du backend pour la haute disponibilité.
+- Stocke l’image Docker du backend dans **AWS ECR**.
+- Définit un **service Kubernetes** qui permet aux autres composants de communiquer avec lui.
 
-### 🔹 Frontend Deployment (`frontend-deployment.yaml`)
-Déploie le **frontend React.js** sous forme de pods.
+---
+
+### 🔹 3. Backend Service (`backend-service.yaml`)
+
+**Rôle :**  
+Le service expose le backend à l’intérieur du cluster et permet la communication avec d’autres composants (Ingress, Frontend, Base de données).
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+spec:
+  selector:
+    app: backend
+  ports:
+    - protocol: TCP
+      port: 4000
+      targetPort: 4000
+  type: ClusterIP
+```
+
+🔹 **Pourquoi est-ce important ?**  
+- Crée un point d'accès stable pour le backend.
+- Permet aux autres services de communiquer avec le backend via `backend-service:4000`.
+
+---
+
+### 🔹 4. Frontend Deployment (`frontend-deployment.yaml`)
+
+**Rôle :**  
+Ce fichier définit le déploiement du frontend en tant que pods dans Kubernetes.
 
 ```yaml
 apiVersion: apps/v1
@@ -167,13 +132,42 @@ spec:
         - containerPort: 80
 ```
 
-> **Pourquoi ?**  
-> - Définit **2 replicas** pour le frontend.
-> - Utilise **Nginx** pour servir l’application.
-> - Relie le frontend au **Load Balancer**.
+🔹 **Pourquoi est-ce important ?**  
+- Déploie **2 instances** du frontend.
+- Utilise **Nginx** pour servir les fichiers statiques.
+- Intègre l’application React au système Kubernetes.
 
-### 🗄️ PostgreSQL StatefulSet (`postgres-statefulset.yaml`)
-Définit la base de données PostgreSQL avec un **stockage persistant**.
+---
+
+### 🔹 5. Frontend Service (`frontend-service.yaml`)
+
+**Rôle :**  
+Le service expose le frontend au sein du cluster.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+```
+
+🔹 **Pourquoi est-ce important ?**  
+- Permet aux autres services (Ingress) d’accéder au frontend via `frontend-service:80`.
+
+---
+
+### 🗄️ 6. PostgreSQL StatefulSet (`postgres-statefulset.yaml`)
+
+**Rôle :**  
+Déploie la base de données PostgreSQL en mode **StatefulSet** pour garantir un stockage persistant.
 
 ```yaml
 apiVersion: apps/v1
@@ -210,10 +204,54 @@ spec:
           storage: 10Gi
 ```
 
-> **Pourquoi ?**  
-> - Utilise un **StatefulSet** pour garantir un stockage **persistant**.
-> - Stocke les données PostgreSQL sur un volume EBS CSI.
-> - Définit un **VolumeClaimTemplate** de **10Gi** pour le stockage.
+🔹 **Pourquoi est-ce important ?**  
+- **StatefulSet** permet de conserver les données même si le pod redémarre.
+- Stocke les données sur un **EBS CSI Driver**.
+- Utilise un **volume persistent** de **10Gi** pour éviter la perte des données.
+
+---
+
+### 🔹 7. PostgreSQL Service (`postgres-service.yaml`)
+
+**Rôle :**  
+Permet aux applications de se connecter à la base de données.
+
+```yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-service
+spec:
+  selector:
+    app: postgres
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432
+  type: ClusterIP
+```
+
+🔹 **Pourquoi est-ce important ?**  
+- Fournit un point d’entrée stable pour la base de données.
+- Permet aux pods backend de communiquer avec PostgreSQL via `postgres-service:5432`.
+
+---
+
+## 🎯 Conclusion
+
+Ces **manifests Kubernetes** assurent une architecture **modulaire** et **scalable**, facilitant la gestion des microservices.
+
+| **Manifest** | **Rôle** |
+|---|---|
+| `ingress.yaml` | Gestion du routage et Load Balancer |
+| `backend-deployment.yaml` | Déploiement du backend |
+| `backend-service.yaml` | Exposition du backend dans le cluster |
+| `frontend-deployment.yaml` | Déploiement du frontend |
+| `frontend-service.yaml` | Exposition du frontend dans le cluster |
+| `postgres-statefulset.yaml` | Déploiement de PostgreSQL avec stockage persistant |
+| `postgres-service.yaml` | Service permettant l’accès à PostgreSQL |
+
+Grâce à cette architecture **cloud-native**, **RenderMart** peut évoluer et gérer efficacement les charges variables.
 
 ---
 
