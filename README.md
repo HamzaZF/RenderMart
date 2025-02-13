@@ -1,6 +1,6 @@
-# RenderMart - Plateforme de Génération et Vente d'Images IA
+# RenderMart - Plateforme de Génération d'Images IA
 
-RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **générer, vendre et acheter des images générées par IA**.
+RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **générer des images basées sur l'intelligence artificielle**.
 
 ---
 
@@ -10,25 +10,19 @@ RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **
 - Utilisation de **AWS Bedrock** pour générer des images de haute qualité
 - Personnalisation des images selon les préférences des utilisateurs
 
-### 🛒 Vente et Achat d'Images
-- Les utilisateurs peuvent mettre en vente leurs images générées
-- Paiement et gestion des transactions intégrés
-
 ### ☁️ Stockage et Accessibilité Cloud
 - **Stockage des images sur AWS S3**
 - **API Gateway et AWS Lambda** pour une exposition sécurisée et évolutive
-- **Système de cache et CDN** pour accélérer l'affichage des images
 
 ### 🏗️ Architecture microservices
 - **Backend** : API REST via **Node.js & Express**
 - **Frontend** : Interface moderne développée en **React.js & Vite**
-- **Base de données** : PostgreSQL avec stockage persistant via **EBS CSI Driver**
+- **Base de données** : PostgreSQL avec stockage persistant
 - **Communication interne** : Services Kubernetes avec **Ingress Controller**
 
 ### ☁️ Déploiement et scalabilité cloud-native
 - Conteneurisation avec **Docker**
 - Orchestration des microservices avec **Kubernetes**
-- Stockage persistant avec **EBS CSI Driver**
 - Load Balancing et exposition des services via **AWS Load Balancer Controller**
 - CI/CD avec **GitHub Actions** et **Skaffold**
 
@@ -51,7 +45,6 @@ RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **
 - **Node.js** (Exécution du serveur backend)
 - **Express.js** (Framework API REST)
 - **PostgreSQL** (Base de données relationnelle)
-- **EBS CSI Driver** (Stockage persistant des données)
 
 ### 🎨 Frontend
 - **React.js** (Framework UI)
