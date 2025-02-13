@@ -1,6 +1,6 @@
 # RenderMart - AI Image Generation Platform
 
-RenderMart is a **cloud-native platform** that allows users to **generate AI-based images**.
+RenderMart is a **cloud-native platform** that empowers users to create **AI-generated images** and **monetize them** through a built-in **marketplace**.
 
 ---
 
@@ -59,24 +59,7 @@ RenderMart is a **cloud-native platform** that allows users to **generate AI-bas
 
 ---
 
-## 🏗️ Deployment and Required Tools
-
-RenderMart is designed for deployment on **AWS** and requires the following tools:
-
-| Tool | Role |
-|---|---|
-| `eksctl` | Creates and manages the EKS cluster |
-| `kubectl` | Interacts with Kubernetes |
-| `helm` | Installs components (Ingress, Load Balancer, etc.) |
-| `skaffold` | Automates builds and deployment |
-| `aws-cli` | Manages AWS resources |
-| `docker` | Creates and manages containers |
-
-<!-- > **Note**: Before starting, ensure these tools are installed and properly configured. -->
-
----
-
-## 📁 Kubernetes - Configuration Files Explanation
+## ![Kubernetes Logo](https://upload.wikimedia.org/wikipedia/commons/3/39/Kubernetes_logo_without_workmark.svg | width=50) Kubernetes Cluster Architecture & Configuration
 
 The **RenderMart** architecture relies on Kubernetes to ensure service resilience and scalability. Below are the key Kubernetes files and their roles.
 
