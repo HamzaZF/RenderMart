@@ -1,208 +1,144 @@
-# RenderMart - Cloud-Native PERN Stack Application
+# README – Déploiement EKS avec Skaffold, NodePort et EBS CSI
 
-## 📌 Introduction
-RenderMart is a cloud-native web application built using the **PERN (PostgreSQL, Express, React, Node.js) stack**, designed for **scalability and high availability**. It is deployed on **AWS using Kubernetes (EKS)** and leverages **CI/CD with GitHub Actions** for automated deployments.
+Ce guide décrit pas à pas comment créer et configurer un cluster EKS, installer les add-ons nécessaires (dont **AWS Load Balancer Controller** et **EBS CSI Driver**), configurer **NodePort** pour l’exposition de services, puis déployer votre application (backend + frontend + base de données Postgres) via **Skaffold**.  
 
-This project follows best practices in **Cloud Infrastructure, Kubernetes, and DevOps**, making it ideal for demonstrating cloud engineering expertise.
-
-## 📖 Table of Contents
-- [Features](#-features)
-- [Cloud-Native Architecture](#-cloud-native-architecture)
-- [Tech Stack](#-tech-stack)
-- [Infrastructure Overview](#-infrastructure-overview)
-- [Project Structure](#-project-structure)
-- [Installation & Local Setup](#-installation--local-setup)
-- [Cloud Deployment on AWS](#-cloud-deployment-on-aws)
-- [CI/CD Pipeline](#-cicd-pipeline)
-- [Configuration & Secrets](#-configuration--secrets)
-- [License](#-license)
-- [Contributors](#-contributors)
+> **Important :**  
+> - L’utilisation d’un **NodeGroup** et de l’add-on **EBS CSI** est **obligatoire** pour permettre un stockage persistant à votre StatefulSet Postgres.  
+> - Dans les exemples ci-dessous, remplacez tous les `<PLACEHOLDERS>` par vos valeurs réelles (ex: `<ACCOUNT_ID>`, `<REGION>`, `<CLUSTER_NAME>`, `<VPC_ID>`, etc.).  
+> - Les commandes sont indiquées à titre d’exemple et doivent être adaptées à votre contexte.
 
 ---
 
-## ✨ Features
-- ✅ **Cloud-Native Deployment** - Built for **AWS EKS** (Elastic Kubernetes Service)
-- ✅ **Microservices Architecture** - Separate services for **frontend, backend, and database**
-- ✅ **Scalability & High Availability** - Managed via **Kubernetes StatefulSets & Deployments**
-- ✅ **Load Balancing & Ingress** - **Nginx Ingress** for traffic routing
-- ✅ **CI/CD Pipeline** - Automated deployments with **GitHub Actions**
-- ✅ **Secrets Management** - **Kubernetes Secrets & ConfigMaps** for environment variables
-- ✅ **Persistent Storage** - **PostgreSQL database with PVC (Persistent Volume Claims)**
+## 1. Création et configuration du cluster EKS
 
----
+### 1.1 Créer le cluster EKS (Fargate)
 
-## ☁️ Cloud-Native Architecture
-The application is structured as a **fully containerized microservices architecture** running on **AWS EKS**:
-- **Frontend** (React + Nginx) - Exposed via Ingress
-- **Backend** (Node.js + Express) - Handles business logic
-- **Database** (PostgreSQL) - Runs as a **StatefulSet** with Persistent Volumes
-- **Ingress Controller** - Routes external traffic to services
-- **CI/CD Workflow** - Automated builds & deployments using **GitHub Actions**
-
----
-
-## 🛠 Tech Stack
-- **Frontend:** React (Vite), Tailwind CSS, Nginx
-- **Backend:** Node.js, Express
-- **Database:** PostgreSQL (StatefulSet with PVC)
-- **Cloud Provider:** AWS (EKS, ALB, Route 53, S3)
-- **Orchestration:** Kubernetes
-- **Containerization:** Docker
-- **Load Balancing:** AWS ALB + Ingress Controller
-- **CI/CD:** GitHub Actions + DockerHub
-- **Security & Secrets Management:** Kubernetes Secrets, ConfigMaps
-
----
-
-## ☸️ Infrastructure Overview
-```
-AWS EKS Cluster
-├── Ingress (Nginx) → Load Balancer (AWS ALB)
-│   ├── Frontend (React + Nginx) [Deployment + Service]
-│   ├── Backend (Node.js + Express) [Deployment + Service]
-│   ├── Database (PostgreSQL) [StatefulSet + PVC]
-│   ├── Secrets & ConfigMaps (for sensitive data)
-│   ├── CI/CD (GitHub Actions for automation)
+```bash
+eksctl create cluster   --name <CLUSTER_NAME>   --region <REGION>   --fargate
 ```
 
-### **Kubernetes Manifests**
-- `k8s/ingress.yaml` - AWS ALB for routing traffic
-- `k8s/backend-deployment.yaml` - Backend Deployment & Service
-- `k8s/frontend-deployment.yaml` - Frontend Deployment & Service
-- `k8s/postgres-statefulset.yaml` - PostgreSQL with Persistent Storage
-- `k8s/postgres-secret.yaml` - Database credentials stored securely
-- `k8s/configmaps.yaml` - Configuration management
+### 1.2 Mettre à jour le kubeconfig
 
----
-
-## 📂 Project Structure
+```bash
+aws eks update-kubeconfig   --name <CLUSTER_NAME>   --region <REGION>
 ```
-rendermart/
-│── backend/           # Node.js backend with Express
-│   ├── index.js       # Main entry point
-│   ├── package.json   # Dependencies
-│   ├── Dockerfile     # Backend Dockerfile
-│── frontend/          # React frontend
-│   ├── src/           # React source files
-│   │   ├── components/ # React components
-│   ├── package.json   # Frontend dependencies
-│   ├── Dockerfile     # Frontend Dockerfile
-│── k8s/               # Kubernetes manifests
-│   ├── ingress.yaml   # Load balancing & routing
-│   ├── backend-deployment.yaml
-│   ├── frontend-deployment.yaml
-│   ├── postgres-statefulset.yaml
-│── .github/workflows/ # CI/CD configuration
-│── skaffold.yaml      # Kubernetes deployment automation
+
+### 1.3 Associer le provider IAM OIDC
+
+```bash
+eksctl utils associate-iam-oidc-provider   --cluster <CLUSTER_NAME>   --approve
 ```
 
 ---
 
-## 🛠 Installation & Local Setup
+## 2. Installer et configurer le AWS Load Balancer Controller
 
-### 🔹 **1. Clone the repository**
-```sh
-git clone https://github.com/yourusername/rendermart.git
-cd rendermart
+### 2.1 Créer la policy IAM (si pas déjà existante)
+
+```bash
+curl -o iam-policy.json   https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/refs/heads/main/docs/install/iam_policy.json
 ```
 
-### 🔹 **2. Set up environment variables**
-Create `.env` files for **backend** and **frontend**.
+### 2.2 Créer le service account IAM pour le ALB Controller
 
-#### Backend (`backend/.env`)
-```
-DATABASE_URL=your_postgresql_connection_string
-PORT=5000
-JWT_SECRET=your_secret_key
+```bash
+eksctl create iamserviceaccount   --cluster=<CLUSTER_NAME>   --namespace=kube-system   --name=aws-load-balancer-controller   --role-name aws-load-balancer-controller-role   --attach-policy-arn=arn:aws:iam::<ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy   --approve
 ```
 
-#### Frontend (`frontend/.env`)
-```
-VITE_API_BASE_URL=http://localhost:5000
-```
+### 2.3 Installer le ALB Controller via Helm
 
-### 🔹 **3. Install dependencies**
-```sh
-cd backend && npm install
-cd ../frontend && npm install
-```
+```bash
+helm repo add eks https://aws.github.io/eks-charts
 
-### 🔹 **4. Run Locally**
-```sh
-cd backend && npm start
-cd frontend && npm run dev
+helm install aws-load-balancer-controller eks/aws-load-balancer-controller   -n kube-system   --set clusterName=<CLUSTER_NAME>   --set serviceAccount.create=false   --set serviceAccount.name=aws-load-balancer-controller   --set region=<REGION>   --set vpcId=<VPC_ID>
 ```
 
 ---
 
-## ☁️ Cloud Deployment on AWS
+## 3. Créer un Fargate Profile (pour le namespace principal)
 
-### 1️⃣ **Deploy to Kubernetes (EKS)**
-Ensure you have:
-- **AWS CLI** configured (`aws configure`)
-- **kubectl** installed
-- **Helm & Skaffold** for deployment automation
-
-#### **Deploy to AWS EKS**
-```sh
-aws eks --region your-region update-kubeconfig --name your-cluster-name
-kubectl apply -f k8s/
+```bash
+eksctl create fargateprofile   --cluster <CLUSTER_NAME>   --region <REGION>   --name fargate-profile-<CLUSTER_NAME>   --namespace rendermart   --selector app!=postgres
 ```
 
-### 2️⃣ **Check Deployment**
-```sh
-kubectl get pods -n rendermart
-kubectl get services -n rendermart
+---
+
+## 4. Créer un NodeGroup (obligatoire pour EBS CSI et NodePort)
+
+Pour permettre l’accès **NodePort** et la gestion du **stockage persistant** (StatefulSet Postgres), vous devez créer un NodeGroup. Fargate seul ne suffit pas pour l’EBS CSI Driver.
+
+```bash
+eksctl create nodegroup   --cluster <CLUSTER_NAME>   --name efs-nodegroup   --node-type t3.large   --nodes 2   --nodes-min 1   --nodes-max 3   --node-volume-size 20   --region <REGION>
 ```
 
-### 3️⃣ **Access the Application**
-- The frontend will be accessible via the **AWS ALB Ingress** URL.
-- Retrieve it using:
-  ```sh
-  kubectl get ingress -n rendermart
-  ```
+> **Note :** Ici, le nom `efs-nodegroup` n’est qu’un exemple.
 
 ---
 
-## 🚀 CI/CD Pipeline
+## 5. Installer et configurer le EBS CSI Driver (obligatoire)
 
-### ✅ **GitHub Actions Workflow**
-- **Automated Testing & Build**
-- **Docker Image Push to DockerHub**
-- **Kubernetes Deployment on AWS**
+### 5.1 Créer le service account IAM
 
-The workflow is defined in:
-```
-.github/workflows/main.yaml
+```bash
+eksctl create iamserviceaccount   --region <REGION>   --name ebs-csi-controller-sa   --namespace kube-system   --cluster <CLUSTER_NAME>   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve   --role-only   --role-name AmazonEKS_EBS_CSI_DriverRole
 ```
 
-### **Trigger Deployment**
-Push changes to **main** branch to trigger **CI/CD pipeline**.
+### 5.2 Installer l’add-on EBS CSI Driver
+
+```bash
+eksctl create addon   --name aws-ebs-csi-driver   --cluster <CLUSTER_NAME>   --service-account-role-arn arn:aws:iam::<ACCOUNT_ID>:role/AmazonEKS_EBS_CSI_DriverRole   --force
+```
 
 ---
 
-## 🔐 Configuration & Secrets
+## 6. Créer les dépôts ECR (si pas déjà fait)
 
-### 🔹 **Secrets Management**
-- **PostgreSQL Credentials** are stored in Kubernetes **Secrets** (`postgres-secret.yaml`).
-- **Environment Variables** are managed using **ConfigMaps** (`backend-config.yaml`, `frontend-config.yaml`).
-
-### 🔹 **Persistent Storage**
-- **PostgreSQL** uses a **Persistent Volume Claim (PVC)** (`postgres-pvc.yaml`).
+```bash
+aws ecr create-repository --repository-name rendermart-backend
+aws ecr create-repository --repository-name rendermart-frontend
+```
 
 ---
 
-## 📜 License
-This project is licensed under the **MIT License**.
+## 7. Authentification à ECR
+
+Assurez-vous de vous connecter à ECR avant le build/push :
+
+```bash
+aws ecr get-login-password --region <REGION> | docker login --username AWS --password-stdin <ACCOUNT_ID>.dkr.ecr.<REGION>.amazonaws.com
+```
 
 ---
 
-## 🤝 Contributors
-- **Your Name** - [GitHub Profile](https://github.com/yourusername)
+## 8. Déploiement via Skaffold
+
+Le fichier `skaffold.yaml` (ou `skaffold/v4beta12`) définit :
+- Les images à construire (`artifacts`),
+- Les dépôts cibles (ECR),
+- Les manifests Kubernetes à appliquer (section `manifests`).
+
+### 8.1 Lancer le build + déploiement
+
+```bash
+skaffold run
+```
+
+Cette commande va :
+1. **Construire** les images Docker (backend, frontend) via les `Dockerfile` indiqués,  
+2. **Pousser** les images dans ECR (grâce à `local.push: true`),  
+3. **Appliquer** tous les manifests listés (StatefulSet Postgres, Services, ConfigMaps, Ingress, etc.).
+
+### 8.2 Séparer les étapes (optionnel)
+
+- **Build uniquement :** `skaffold build`  
+- **Déploiement uniquement :** `skaffold deploy`
 
 ---
 
-## 🔗 Links
-- **Live Demo:** [Your AWS Deployed App](#)
-- **API Docs:** [Swagger or Postman Collection](#)
-- **Report Issues:** [GitHub Issues](#)
+## 9. Conclusion
+
+En suivant ces étapes, vous disposerez :
+- D’un **cluster EKS** (Fargate + NodeGroup) prêt à accueillir votre application,
+- Du **Load Balancer Controller** pour gérer vos Ingress,
+- Du **EBS CSI Driver** pour le stockage persistant de votre base de données,
+- D’un **workflow Skaffold** permettant de builder et déployer facilement l’ensemble (backend, frontend et Postgres).
