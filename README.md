@@ -1,88 +1,88 @@
-# RenderMart - Plateforme de Génération d'Images IA
+# RenderMart - AI Image Generation Platform
 
-RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **générer des images basées sur l'intelligence artificielle**.
-
----
-
-## 🚀 Fonctionnalités principales
-
-### 🎨 Génération d'images IA
-- Utilisation de **AWS Bedrock** pour générer des images de haute qualité.
-- Personnalisation des images selon les préférences des utilisateurs.
-
-### ☁️ Stockage et Accessibilité Cloud
-- **Stockage des images sur AWS S3** pour une accessibilité et une scalabilité optimale.
-- **API Gateway et AWS Lambda** pour exposer de manière sécurisée les fonctionnalités de génération et gestion d'images.
-
-### 🏗️ Architecture microservices
-- **Backend** : API REST développée avec **Node.js & Express**.
-- **Frontend** : Interface utilisateur moderne avec **React.js & Vite**.
-- **Base de données** : PostgreSQL avec stockage persistant.
-- **Communication interne** : Utilisation des **Services Kubernetes et Ingress Controller** pour la connectivité.
-
-### ☁️ Déploiement et scalabilité cloud-native
-- Conteneurisation avec **Docker** pour une gestion simplifiée des services.
-- Orchestration et gestion des ressources avec **Kubernetes**.
-- Gestion du trafic avec **AWS Load Balancer Controller**.
-- Automatisation des builds et déploiements avec **GitHub Actions** et **Skaffold**.
+RenderMart is a **cloud-native platform** that allows users to **generate AI-based images**.
 
 ---
 
-## 🛠️ Technologies utilisées
+## 🚀 Key Features
 
-### 🌍 Cloud & Stockage
-- **AWS S3** (Stockage des images générées)
-- **AWS Lambda** (Exécution des fonctions serverless)
-- **API Gateway** (Gestion des accès et endpoints)
-- **AWS EKS** (Orchestration des conteneurs)
-- **AWS ECR** (Registry pour stocker les images Docker)
+### 🎨 AI Image Generation
+- Utilizes **AWS Bedrock** to generate high-quality images.
+- Customizable images based on user preferences.
 
-### 🏗️ Orchestration & Conteneurisation
-- **Kubernetes** (Orchestration des microservices)
-- **Docker** (Conteneurisation des services)
+### ☁️ Cloud Storage and Accessibility
+- **Stores images on AWS S3** for optimal accessibility and scalability.
+- **API Gateway and AWS Lambda** securely expose image generation and management features.
+
+### 🏗️ Microservices Architecture
+- **Backend**: REST API developed with **Node.js & Express**.
+- **Frontend**: Modern user interface with **React.js & Vite**.
+- **Database**: PostgreSQL with persistent storage.
+- **Internal Communication**: Uses **Kubernetes Services and Ingress Controller** for connectivity.
+
+### ☁️ Cloud-Native Deployment and Scalability
+- Containerization with **Docker** for simplified service management.
+- Orchestration and resource management with **Kubernetes**.
+- Traffic management using **AWS Load Balancer Controller**.
+- Automated builds and deployments with **GitHub Actions** and **Skaffold**.
+
+---
+
+## 🛠️ Technologies Used
+
+### 🌍 Cloud & Storage
+- **AWS S3** (Storage for generated images)
+- **AWS Lambda** (Serverless function execution)
+- **API Gateway** (Access and endpoint management)
+- **AWS EKS** (Container orchestration)
+- **AWS ECR** (Registry for storing Docker images)
+
+### 🏗️ Orchestration & Containerization
+- **Kubernetes** (Microservices orchestration)
+- **Docker** (Service containerization)
 
 ### 🖥️ Backend
-- **Node.js** (Exécution du serveur backend)
-- **Express.js** (Framework API REST)
-- **PostgreSQL** (Base de données relationnelle)
+- **Node.js** (Backend server execution)
+- **Express.js** (REST API framework)
+- **PostgreSQL** (Relational database)
 
 ### 🎨 Frontend
-- **React.js** (Framework UI)
-- **Vite** (Optimisation du frontend)
-- **TailwindCSS** (Framework CSS)
-- **Nginx** (Serveur pour le frontend)
+- **React.js** (UI framework)
+- **Vite** (Frontend optimization)
+- **TailwindCSS** (CSS framework)
+- **Nginx** (Frontend server)
 
-### ⚙️ CI/CD et Automatisation
-- **GitHub Actions** (Automatisation des builds et tests)
-- **Skaffold** (Automatisation du déploiement sur Kubernetes)
-- **Helm** (Gestion des composants Kubernetes)
+### ⚙️ CI/CD and Automation
+- **GitHub Actions** (Automated builds and tests)
+- **Skaffold** (Automated deployment on Kubernetes)
+- **Helm** (Kubernetes component management)
 
 ---
 
-## 🏗️ Déploiement et outils nécessaires
+## 🏗️ Deployment and Required Tools
 
-RenderMart est conçu pour être déployé sur **AWS** et nécessite les outils suivants :
+RenderMart is designed for deployment on **AWS** and requires the following tools:
 
-| Outil | Rôle |
+| Tool | Role |
 |---|---|
-| `eksctl` | Création et gestion du cluster EKS |
-| `kubectl` | Interaction avec Kubernetes |
-| `helm` | Installation des composants (Ingress, Load Balancer, etc.) |
-| `skaffold` | Automatisation des builds et du déploiement |
-| `aws-cli` | Gestion des ressources AWS |
-| `docker` | Création et gestion des conteneurs |
+| `eksctl` | Creates and manages the EKS cluster |
+| `kubectl` | Interacts with Kubernetes |
+| `helm` | Installs components (Ingress, Load Balancer, etc.) |
+| `skaffold` | Automates builds and deployment |
+| `aws-cli` | Manages AWS resources |
+| `docker` | Creates and manages containers |
 
-> **Remarque** : Avant de commencer, assurez-vous que ces outils sont installés et configurés correctement.
+> **Note**: Before starting, ensure these tools are installed and properly configured.
 
 ---
 
-## 📁 Kubernetes - Explication des fichiers de configuration
+## 📁 Kubernetes - Configuration Files Explanation
 
-L'architecture de **RenderMart** repose sur Kubernetes pour assurer la résilience et la scalabilité des services. Voici les fichiers Kubernetes principaux et leur rôle.
+The **RenderMart** architecture relies on Kubernetes to ensure service resilience and scalability. Below are the key Kubernetes files and their roles.
 
 ### 📌 Ingress Controller (`ingress.yaml`)
 
-Définit les règles de routage pour acheminer le trafic vers les services internes de l'application.
+Defines routing rules to direct traffic to internal application services.
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -98,7 +98,7 @@ spec:
   rules:
     - http:
         paths:
-          - path: /api/ # Toutes les requêtes qui commencent par /api vont au backend
+          - path: /api/ # All requests starting with /api go to the backend
             pathType: Prefix
             backend:
               service:
@@ -106,7 +106,7 @@ spec:
                 port:
                   number: 80
 
-          - path: / # Tout le reste va au frontend
+          - path: / # Everything else goes to the frontend
             pathType: Prefix
             backend:
               service:
@@ -115,13 +115,12 @@ spec:
                   number: 80
 ```
 
-
-- Expose le frontend et le backend via un **AWS Load Balancer**.
-- Route `/api/` vers le backend et `/` vers le frontend.
+- Exposes the frontend and backend via an **AWS Load Balancer**.
+- Routes `/api/` to the backend and `/` to the frontend.
 
 ### 🔹 Backend Deployment (`backend-deployment.yaml`)
 
-Décrit comment le backend est déployé en tant que **pods répliqués**.
+Describes how the backend is deployed as **replicated pods**.
 
 ```yaml
 apiVersion: apps/v1
@@ -159,174 +158,11 @@ spec:
               cpu: "500m"
 ```
 
-- Exécute l’image Docker du backend stockée dans **ECR**.
-- Crée **2 réplicas** pour assurer la disponibilité.
-- Définit l'accès sur le **port 4000**.
-
-### 🔹 Backend Service (`backend-service.yaml`)
-
-Expose le backend à l’intérieur du cluster Kubernetes.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-  namespace: rendermart
-spec:
-  selector:
-    app: backend
-  type: ClusterIP
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 3300
-```
-
-
-- Définit un **Service Kubernetes** en mode `ClusterIP`.
-- Permet aux autres services internes d’accéder au backend.
-
-### 🔹 Frontend Deployment (`frontend-deployment.yaml`)
-
-Décrit le déploiement du frontend.
-
-```yaml
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: frontend
-  namespace: rendermart
-spec:
-  replicas: 2
-  selector:
-    matchLabels:
-      app: frontend
-  template:
-    metadata:
-      labels:
-        app: frontend
-    spec:
-      containers:
-        - name: frontend
-          image: 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-frontend:latest
-          imagePullPolicy: Always
-          ports:
-            - containerPort: 80
-          envFrom:
-            - configMapRef:
-                name: frontend-config
-          resources:
-            requests:
-              memory: "64Mi"
-              cpu: "250m"
-            limits:
-              memory: "128Mi"
-              cpu: "500m"
-
-```
-
-
-- Déploie l’image Docker du frontend (stockée dans **ECR**).
-- Exécute le serveur **Nginx** pour servir l’interface utilisateur.
-- Définit **2 réplicas** pour la haute disponibilité.
-
-### 🔹 Frontend Service (`frontend-service.yaml`)
-
-Expose le frontend pour qu’il puisse être accessible via **Ingress**.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-service
-  namespace: rendermart
-spec:
-  ports:
-    - port: 80
-      targetPort: 80
-  selector:
-    app: frontend
-  type: ClusterIP
-
-```
-
-
-- Définit un **Service Kubernetes** pour le frontend.
-- Assure la communication entre le frontend et le Load Balancer.
-
-### 🗄️ PostgreSQL StatefulSet (`postgres-statefulset.yaml`)
-
-Définit la base de données PostgreSQL en mode **StatefulSet** pour assurer la persistance des données.
-
-```yaml
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: postgres
-  namespace: rendermart-db
-spec:
-  serviceName: postgres
-  replicas: 1
-  selector:
-    matchLabels:
-      app: postgres
-  template:
-    metadata:
-      labels:
-        app: postgres
-    spec:
-      nodeSelector:
-        eks.amazonaws.com/nodegroup: efs-nodegroup
-      containers:
-        - name: postgres
-          image: postgres:15
-          ports:
-            - containerPort: 5432
-          envFrom:
-            - secretRef:
-                name: postgres-secret
-          volumeMounts:
-            - name: postgres-storage
-              mountPath: /var/lib/postgresql/data
-              subPath: postgres
-      volumes:
-        - name: postgres-storage
-          persistentVolumeClaim:
-            claimName: postgres-pvc
-```
-
-- Garantit que PostgreSQL conserve ses données même après un redémarrage.
-- Associe un **Volume Persistant** basé sur **EBS CSI**.
-- Définit une demande de stockage de **10Gi** pour la base de données.
-
-### 🔹 PostgreSQL Service (`postgres-service.yaml`)
-
-Expose PostgreSQL au sein du cluster.
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres
-  namespace: rendermart-db
-spec:
-  selector:
-    app: postgres
-  ports:
-    - protocol: TCP
-      port: 5432
-      targetPort: 5432
-  clusterIP: None
-```
-
-
-- Définit un **Service Kubernetes** permettant au backend d’accéder à PostgreSQL.
-- Fonctionne en mode `ClusterIP` pour une communication interne sécurisée.
+- Runs the backend Docker image stored in **ECR**.
+- Creates **2 replicas** to ensure availability.
 
 ---
 
-## 📞 Support
+### 📞 Support
 
-Si vous avez des questions, ouvrez une issue ou contactez-nous à `support@rendermart.com`.
-
+If you have any questions, open an issue or contact us at `support@rendermart.com`.
