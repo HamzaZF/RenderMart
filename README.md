@@ -41,6 +41,11 @@ RenderMart is a **cloud-native platform** that empowers users to create **AI-gen
 - **Kubernetes** (Microservices orchestration)
 - **Docker** (Service containerization)
 
+### ⚙️ CI/CD and Automation
+- **GitHub Actions** (Automated builds and tests)
+- **Skaffold** (Automated deployment on Kubernetes)
+- **Helm** (Kubernetes component management)
+
 ### 🖥️ Backend
 - **Node.js** (Backend server execution)
 - **Express.js** (REST API framework)
@@ -51,11 +56,6 @@ RenderMart is a **cloud-native platform** that empowers users to create **AI-gen
 - **Vite** (Frontend optimization)
 - **TailwindCSS** (CSS framework)
 - **Nginx** (Frontend server)
-
-### ⚙️ CI/CD and Automation
-- **GitHub Actions** (Automated builds and tests)
-- **Skaffold** (Automated deployment on Kubernetes)
-- **Helm** (Kubernetes component management)
 
 ---
 
