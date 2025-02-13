@@ -1,7 +1,6 @@
 # RenderMart - Plateforme de Génération et Vente d'Images IA
 
-RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **générer, vendre et acheter des images générées par IA**.  
-L'application repose sur **AWS Bedrock**, **S3**, **API Gateway** et **Lambda** pour fournir un environnement évolutif et performant.
+RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **générer, vendre et acheter des images générées par IA**.
 
 ---
 
@@ -31,17 +30,39 @@ L'application repose sur **AWS Bedrock**, **S3**, **API Gateway** et **Lambda** 
 - Orchestration des microservices avec **Kubernetes**
 - Stockage persistant avec **EBS CSI Driver**
 - Load Balancing et exposition des services via **AWS Load Balancer Controller**
-- CI/CD avec **GitHub Actions**
+- CI/CD avec **GitHub Actions** et **Skaffold**
 
 ---
 
 ## 🛠️ Technologies utilisées
 
-- **Backend** : Node.js, Express, AWS Lambda, API Gateway, PostgreSQL
-- **Frontend** : React.js, Vite, TailwindCSS, Nginx
-- **Infrastructure** : Kubernetes, AWS EKS, EBS CSI, Ingress Controller, Helm
-- **Stockage & IA** : AWS S3, AWS Bedrock
-- **CI/CD** : Docker, Skaffold, GitHub Actions
+### 🌍 Cloud & Stockage
+- **AWS S3** (Stockage des images générées)
+- **AWS Lambda** (Exécution des fonctions serverless)
+- **API Gateway** (Gestion des accès et endpoints)
+- **AWS EKS** (Orchestration des conteneurs)
+- **AWS ECR** (Stockage des images Docker)
+
+### 🏗️ Orchestration & Conteneurisation
+- **Kubernetes** (Orchestration des microservices)
+- **Docker** (Conteneurisation des services)
+
+### 🖥️ Backend
+- **Node.js** (Exécution du serveur backend)
+- **Express.js** (Framework API REST)
+- **PostgreSQL** (Base de données relationnelle)
+- **EBS CSI Driver** (Stockage persistant des données)
+
+### 🎨 Frontend
+- **React.js** (Framework UI)
+- **Vite** (Optimisation du frontend)
+- **TailwindCSS** (Framework CSS)
+- **Nginx** (Serveur pour le frontend)
+
+### ⚙️ CI/CD et Automatisation
+- **GitHub Actions** (Automatisation des builds et tests)
+- **Skaffold** (Automatisation du déploiement sur Kubernetes)
+- **Helm** (Gestion des composants Kubernetes)
 
 ---
 
