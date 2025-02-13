@@ -1,38 +1,46 @@
-# RenderMart - Application Cloud-Native sur AWS EKS
+# RenderMart - Plateforme de Génération et Vente d'Images IA
 
-RenderMart est une **plateforme de e-commerce cloud-native** conçue pour fonctionner en **architecture microservices**.  
-L'application est déployée sur **AWS EKS (Elastic Kubernetes Service)** et utilise des technologies modernes pour assurer une scalabilité et une résilience optimales.
+RenderMart est une **plateforme cloud-native** qui permet aux utilisateurs de **générer, vendre et acheter des images générées par IA**.  
+L'application repose sur **AWS Bedrock**, **S3**, **API Gateway** et **Lambda** pour fournir un environnement évolutif et performant.
 
 ---
 
 ## 🚀 Fonctionnalités principales
 
-### 🛒 Gestion des produits et commandes
-- Ajout, modification et suppression de produits via une API REST
-- Gestion des commandes et des paiements
-- Interface utilisateur fluide et réactive
+### 🎨 Génération d'images IA
+- Utilisation de **AWS Bedrock** pour générer des images de haute qualité
+- Personnalisation des images selon les préférences des utilisateurs
+
+### 🛒 Vente et Achat d'Images
+- Les utilisateurs peuvent mettre en vente leurs images générées
+- Paiement et gestion des transactions intégrés
+
+### ☁️ Stockage et Accessibilité Cloud
+- **Stockage des images sur AWS S3**
+- **API Gateway et AWS Lambda** pour une exposition sécurisée et évolutive
+- **Système de cache et CDN** pour accélérer l'affichage des images
 
 ### 🏗️ Architecture microservices
-- **Backend** : API REST développée avec **Node.js & Express**
-- **Frontend** : Application React.js avec **Vite & TailwindCSS**
-- **Base de données** : **PostgreSQL** avec stockage persistant sur **EBS CSI Driver**
-- **Communication interne** via **Kubernetes Services & Ingress Controller**
+- **Backend** : API REST via **Node.js & Express**
+- **Frontend** : Interface moderne développée en **React.js & Vite**
+- **Base de données** : PostgreSQL avec stockage persistant via **EBS CSI Driver**
+- **Communication interne** : Services Kubernetes avec **Ingress Controller**
 
 ### ☁️ Déploiement et scalabilité cloud-native
 - Conteneurisation avec **Docker**
 - Orchestration des microservices avec **Kubernetes**
-- Stockage persistant pour la base de données grâce à **EBS CSI Driver**
+- Stockage persistant avec **EBS CSI Driver**
 - Load Balancing et exposition des services via **AWS Load Balancer Controller**
-- Gestion automatisée du build et du déploiement avec **Skaffold**
-- CI/CD via **GitHub Actions**
+- CI/CD avec **GitHub Actions**
 
 ---
 
 ## 🛠️ Technologies utilisées
 
-- **Backend** : Node.js, Express, PostgreSQL
+- **Backend** : Node.js, Express, AWS Lambda, API Gateway, PostgreSQL
 - **Frontend** : React.js, Vite, TailwindCSS, Nginx
 - **Infrastructure** : Kubernetes, AWS EKS, EBS CSI, Ingress Controller, Helm
+- **Stockage & IA** : AWS S3, AWS Bedrock
 - **CI/CD** : Docker, Skaffold, GitHub Actions
 
 ---
@@ -192,31 +200,6 @@ spec:
 > - Utilise un **StatefulSet** pour garantir un stockage **persistant**.
 > - Stocke les données PostgreSQL sur un volume EBS CSI.
 > - Définit un **VolumeClaimTemplate** de **10Gi** pour le stockage.
-
----
-
-## 🛠️ Configuration et Secrets
-
-Avant le déploiement, **vous devez configurer certaines variables d’environnement**.
-
-1️⃣ **Définir l’URL du Load Balancer dans `frontend/.env`**
-
-```env
-VITE_INGRESS_IP=http://k8s-renderma-ingress-XXXXX.us-east-1.elb.amazonaws.com
-```
-
-2️⃣ **Configurer les secrets GitHub Actions**
-
-- `AWS_ACCESS_KEY_ID`
-- `AWS_SECRET_ACCESS_KEY`
-- `AWS_REGION`
-- `ECR_REGISTRY`
-
-3️⃣ **Définir l’URL de l’API Gateway dans `backend/.env`**
-
-```env
-AWS_LAMBDA_URL=https://my-api-id.execute-api.us-east-1.amazonaws.com/prod
-```
 
 ---
 
