@@ -322,7 +322,7 @@ aws eks update-kubeconfig --name rendermart --region <AWS_REGION>
 eksctl utils associate-iam-oidc-provider --cluster rendermart --approve
 ```
 
-### Install AWS Load Balancer Controller
+Install AWS Load Balancer Controller
 
 ```sh
 eksctl create iamserviceaccount --cluster=rendermart --namespace=kube-system --name=aws-load-balancer-controller --role-name aws-load-balancer-controller-role --attach-policy-arn=arn:aws:iam::<AWS_ACCOUNT_ID>:policy/AWSLoadBalancerControllerIAMPolicy --approve
@@ -330,7 +330,7 @@ helm repo add eks https://aws.github.io/eks-charts
 helm install aws-load-balancer-controller eks/aws-load-balancer-controller -n kube-system --set clusterName=rendermart --set serviceAccount.create=false --set serviceAccount.name=aws-load-balancer-controller --set region=<AWS_REGION> --set vpcId=<VPC_ID>
 ```
 
-### Configure Storage & Nodes
+Configure Storage & Nodes
 
 ```sh
 eksctl create fargateprofile --cluster rendermart --region <AWS_REGION> --name fargate-profile-rendermart --namespace rendermart --selector
@@ -382,16 +382,14 @@ Apply the bucket policy:
 
 ## 5. Set Up Lambda & Bedrock
 
-### Steps via AWS Console
-
-1. **Create an API Gateway (POST HTTP)** and configure CORS.
-2. **Deploy a Lambda function** that integrates with Bedrock’s `amazon.titan-image-generator-v1` model. The code for this Lambda function can be found in the `lambda/` folder.
-3. **Increase Lambda timeout** to at least **1 minute** to generate images.
-4. **Create a Lambda role** with the following policies:
+1. Create an API Gateway (POST HTTP) and configure CORS.
+2. Deploy a Lambda function that integrates with Bedrock’s `amazon.titan-image-generator-v1` model. The code for this Lambda function can be found in the `lambda/` folder.
+3. Increase Lambda timeout to at least 1 minute to generate images.
+4. Create a Lambda role with the following policies:
    - `AmazonBedrockFullAccess`
    - `AmazonS3FullAccess`
    - `AWSLambdaBasicExecutionRole`
-5. **Retrieve API Gateway URL**:
+5. Retrieve API Gateway URL:
    ```sh
    kubectl get ingress -n rendermart
    ```
@@ -406,14 +404,14 @@ Authenticate and push images to ECR:
 aws ecr get-login-password | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com
 ```
 
-### Backend
+Build & Push backend image
 
 ```sh
 docker build -t <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/rendermart-backend:latest .
 docker push <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/rendermart-backend:latest
 ```
 
-### Frontend
+Build & Push frontend image
 
 ```sh
 docker build -t <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/rendermart-frontend:latest .
