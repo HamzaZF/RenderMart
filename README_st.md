@@ -10,7 +10,7 @@ aws configure
 
 ## 2. Create & Configure the EKS Cluster
 
-Set up an Amazon EKS cluster with Fargate:
+### Set up an Amazon EKS cluster with Fargate:
 
 ```sh
 eksctl create cluster --name rendermart --region us-east-1 --fargate
@@ -82,7 +82,7 @@ Apply the bucket policy:
 
 1. **Create an API Gateway (POST HTTP)** and configure CORS.
 2. **Deploy a Lambda function** that integrates with Bedrock’s `amazon.titan-image-generator-v1` model. The code for this Lambda function can be found in the `lambda/` folder.
-3. **Increase Lambda timeout** to at least **1 minute** to generate images.
+3. **Extend the Lambda timeout** to a minimum of **1 minute** to ensure sufficient time for image generation.
 4. **Create a Lambda role** with the following policies:
    - `AmazonBedrockFullAccess`
    - `AmazonS3FullAccess`
@@ -95,20 +95,20 @@ Apply the bucket policy:
 
 ## 6. Build & Push Docker Images
 
-Authenticate and push images to ECR:
+### Authenticate to ECR:
 
 ```sh
 aws ecr get-login-password | docker login --username AWS --password-stdin 061039783359.dkr.ecr.us-east-1.amazonaws.com
 ```
 
-### Backend
+### Build & Push backend image
 
 ```sh
 docker build -t 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-backend:latest .
 docker push 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-backend:latest
 ```
 
-### Frontend
+### Build & Push frontend image
 
 ```sh
 docker build -t 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-frontend:latest .
@@ -117,7 +117,7 @@ docker push 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-frontend:lat
 
 ## 7. Deploy Kubernetes Manifests
 
-Apply configurations in the correct order:
+### Apply namespaces and ingress resources
 
 ```sh
 kubectl apply -f ./namespace-rendermart.yaml
@@ -125,13 +125,13 @@ kubectl apply -f ./ingress.yaml
 kubectl get ingress -n rendermart # Retrieve the Ingress address
 ```
 
-Update the frontend `.env` file and backend-config.yaml with the Ingress IP.
+### Update the frontend `.env` file and backend-config.yaml with the Ingress IP
 
 ```sh
 kubectl apply -f ./namespace-rendermart-db.yaml
 ```
 
-Then, deploy the remaining Kubernetes manifests in order:
+### Deploy the remaining Kubernetes manifests
 
 ```sh
 kubectl apply -f k8s/postgres/
