@@ -28,7 +28,38 @@ RenderMart is a **cloud-native platform** that empowers users to create **AI-gen
 
 ---
 
-## 📸 RenderMart - User Interface
+## 🛠️ Technologies Used
+
+### 🌍 Cloud & Storage
+- **AWS S3** (Storage for generated images)
+- **AWS Lambda** (Serverless function execution)
+- **API Gateway** (Access and endpoint management)
+- **AWS EKS** (Container orchestration)
+- **AWS ECR** (Registry for storing Docker images)
+
+### 🏗️ Orchestration & Containerization
+- **Kubernetes** (Microservices orchestration)
+- **Docker** (Service containerization)
+
+### ⚙️ CI/CD and Automation
+- **GitHub Actions** (Automated builds and tests)
+- **Skaffold** (Automated deployment on Kubernetes)
+- **Helm** (Kubernetes component management)
+
+### 🖥️ Backend
+- **Node.js** (Backend server execution)
+- **Express.js** (REST API framework)
+- **PostgreSQL** (Relational database)
+
+### 🎨 Frontend
+- **React.js** (UI framework)
+- **Vite** (Frontend optimization)
+- **TailwindCSS** (CSS framework)
+- **Nginx** (Frontend server)
+
+---
+
+## User Interface
 
 ### 🎨 Image Generation  
 Users can generate an image by entering a description and clicking **"Generate Image"**. Once created, the image can be saved.
@@ -60,37 +91,6 @@ Users can browse and purchase images listed for sale by other creators.
 Once an image is sold, it appears in the **Sales History**, showing the price, buyer, and date of sale.
 
 ![History](images/history.png)
-
----
-
-## 🛠️ Technologies Used
-
-### 🌍 Cloud & Storage
-- **AWS S3** (Storage for generated images)
-- **AWS Lambda** (Serverless function execution)
-- **API Gateway** (Access and endpoint management)
-- **AWS EKS** (Container orchestration)
-- **AWS ECR** (Registry for storing Docker images)
-
-### 🏗️ Orchestration & Containerization
-- **Kubernetes** (Microservices orchestration)
-- **Docker** (Service containerization)
-
-### ⚙️ CI/CD and Automation
-- **GitHub Actions** (Automated builds and tests)
-- **Skaffold** (Automated deployment on Kubernetes)
-- **Helm** (Kubernetes component management)
-
-### 🖥️ Backend
-- **Node.js** (Backend server execution)
-- **Express.js** (REST API framework)
-- **PostgreSQL** (Relational database)
-
-### 🎨 Frontend
-- **React.js** (UI framework)
-- **Vite** (Frontend optimization)
-- **TailwindCSS** (CSS framework)
-- **Nginx** (Frontend server)
 
 ---
 
