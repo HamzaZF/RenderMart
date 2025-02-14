@@ -41,11 +41,12 @@ Users can generate an image by entering a description and clicking **"Generate I
 Users can manage their generated images and list them for sale with a custom price.
 
 📍 **Setting a price before listing an image**  
+
 ![Wallet - Listing](images/wallet_list.png)
 
-📍 **Image successfully listed on the marketplace**  
-![Wallet - Image Listed](images/wallet_listed.png)
+📍 **List the image on the marketplace**  
 
+![Wallet - Image Listed](images/wallet_listed.png)
 ---
 
 ### 🛒 Marketplace  
