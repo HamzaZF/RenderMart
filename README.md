@@ -65,7 +65,6 @@ RenderMart is a **cloud-native platform** that empowers users to create **AI-gen
 Users can generate an image by entering a description and clicking **"Generate Image"**. Once created, the image can be saved.
 
 ![Image Generation](images/generate_image.png)
-
 ---
 
 ### 🏦 Wallet Management  
@@ -84,7 +83,6 @@ Users can manage their generated images and list them for sale with a custom pri
 Users can browse and purchase images listed for sale by other creators.
 
 ![Marketplace](images/wallet_marketplace.png)
-
 ---
 
 ### 📜 Sales History  
