@@ -28,6 +28,40 @@ RenderMart is a **cloud-native platform** that empowers users to create **AI-gen
 
 ---
 
+## 📸 RenderMart - User Interface
+
+### 🎨 Image Generation  
+Users can generate an image by entering a description and clicking **"Generate Image"**. Once created, the image can be saved.
+
+![Image Generation](images/generate_image.png)
+
+---
+
+### 🏦 Wallet Management  
+Users can manage their generated images and list them for sale with a custom price.
+
+📍 **Setting a price before listing an image**  
+![Wallet - Listing](images/wallet_list.png)
+
+📍 **Image successfully listed on the marketplace**  
+![Wallet - Image Listed](images/wallet_listed.png)
+
+---
+
+### 🛒 Marketplace  
+Users can browse and purchase images listed for sale by other creators.
+
+![Marketplace](images/wallet_marketplace.png)
+
+---
+
+### 📜 Sales History  
+Once an image is sold, it appears in the **Sales History**, showing the price, buyer, and date of sale.
+
+![History](images/history.png)
+
+---
+
 ## 🛠️ Technologies Used
 
 ### 🌍 Cloud & Storage
@@ -302,9 +336,9 @@ spec:
 
 ---
 
-# Rendermart Deployment Guide
+##  Rendermart Deployment Guide
 
-## 1. Set AWS Credentials
+### 1. Set AWS Credentials
 
 Ensure your AWS CLI is configured correctly:
 
@@ -312,7 +346,7 @@ Ensure your AWS CLI is configured correctly:
 aws configure
 ```
 
-## 2. Create & Configure the EKS Cluster
+### 2. Create & Configure the EKS Cluster
 
 Set up an Amazon EKS cluster with Fargate:
 
@@ -339,7 +373,7 @@ eksctl create addon --name aws-ebs-csi-driver --cluster rendermart --service-acc
 eksctl create nodegroup --cluster rendermart --name efs-nodegroup --node-type t3.large --nodes 2 --nodes-min 1 --nodes-max 3 --node-volume-size 20 --region <AWS_REGION>
 ```
 
-## 3. Create & Configure ECR
+### 3. Create & Configure ECR
 
 Create repositories for storing Docker images:
 
@@ -355,7 +389,7 @@ Update the following files:
 - **`k8s/backend/backend-deployment.yaml`**: Modify the `image` field to use the new backend ECR repository URL.
 - **`k8s/backend/backend-config.yaml`**: Set the correct `CORS_ORIGIN` to match the generated Ingress IP once it is retrieved.
 
-## 4. Configure S3 Bucket
+### 4. Configure S3 Bucket
 
 Create a public S3 bucket:
 
@@ -380,7 +414,7 @@ Apply the bucket policy:
 }
 ```
 
-## 5. Set Up Lambda & Bedrock
+### 5. Set Up Lambda & Bedrock
 
 1. Create an API Gateway (POST HTTP) and configure CORS.
 2. Deploy a Lambda function that integrates with Bedrock’s `amazon.titan-image-generator-v1` model. The code for this Lambda function can be found in the `lambda/` folder.
@@ -396,7 +430,7 @@ Apply the bucket policy:
 
 6. Update `AWS_LAMBDA_API` in `/frontend/.env` with the value retrieved in step 5.
 
-## 6. Build & Push Docker Images
+### 6. Build & Push Docker Images
 
 Authenticate and push images to ECR:
 
@@ -418,7 +452,7 @@ docker build -t <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/rendermart-f
 docker push <AWS_ACCOUNT_ID>.dkr.ecr.<AWS_REGION>.amazonaws.com/rendermart-frontend:latest
 ```
 
-## 7. Deploy Kubernetes Manifests
+### 7. Deploy Kubernetes Manifests
 
 Apply configurations in the correct order:
 
@@ -442,7 +476,7 @@ kubectl apply -f k8s/backend/
 kubectl apply -f k8s/frontend/
 ```
 
-## 8. Automate Deployment with Skaffold
+### 8. Automate Deployment with Skaffold
 
 Skaffold can be used to build and deploy updates seamlessly. For new deployments, you can run the following command:
 
@@ -452,7 +486,7 @@ skaffold run
 
 For subsequent updates to the code, Skaffold can automatically build and deploy the latest changes without manually rebuilding Docker images and applying Kubernetes manifests.
 
-## 9. Configure GitHub Actions
+### 9. Configure GitHub Actions
 
 To enable automated builds and deployments, configure the following GitHub Secrets:
 
