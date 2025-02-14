@@ -44,7 +44,7 @@ Users can manage their generated images and list them for sale with a custom pri
 
 ![Wallet - Listing](images/wallet_list.png)
 
-📍 **List the image on the marketplace**  
+📍 **Listing the image on the marketplace**  
 
 ![Wallet - Image Listed](images/wallet_listed.png)
 ---
