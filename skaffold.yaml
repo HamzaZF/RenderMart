@@ -1,15 +1,8 @@
 apiVersion: skaffold/v4beta12
 kind: Config
 metadata:
-  name: rendermart
+  name: aigc-market
 build:
-  platforms:
-    - linux/amd64
-  tagPolicy:
-    customTemplate:
-      template: "{{.IMAGE_NAME}}:latest"
-  local:
-    push: true
   artifacts:
     - image: 061039783359.dkr.ecr.us-east-1.amazonaws.com/rendermart-backend
       context: backend
@@ -21,17 +14,17 @@ build:
         dockerfile: Dockerfile
 manifests:
   rawYaml:
-    - k8s/config/namespace-rendermart-db.yaml
-    - k8s/config/namespace-rendermart.yaml
+    - k8s/utils/namespace-rendermart.yaml
+    - k8s/utils/namespace-rendermart-db.yaml
+    - k8s/utils/ingress.yaml
+    - k8s/postgres/postgres-pvc.yaml
     - k8s/postgres/postgres-secret-db.yaml
     - k8s/postgres/postgres-secret.yaml
     - k8s/postgres/postgres-service.yaml
-    - k8s/postgres/postgres-pvc.yaml
     - k8s/postgres/postgres-statefulset.yaml
     - k8s/backend/backend-config.yaml
     - k8s/backend/backend-deployment.yaml
     - k8s/backend/backend-service.yaml
-    - k8s/frontend/frontend-config.yaml
     - k8s/frontend/frontend-deployment.yaml
     - k8s/frontend/frontend-service.yaml
-    - k8s/config/ingress.yaml
+

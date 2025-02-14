@@ -19,9 +19,9 @@ spec:
           imagePullPolicy: Always
           ports:
             - containerPort: 80
-          envFrom:
-            - configMapRef:
-                name: frontend-config
+          # envFrom:
+          #   - configMapRef:
+          #       name: frontend-config
           resources:
             requests:
               memory: "64Mi"

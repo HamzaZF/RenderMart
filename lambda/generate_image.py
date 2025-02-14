@@ -21,18 +21,18 @@ MODEL_ID = "amazon.titan-image-generator-v1"
 BUCKET_NAME = "rendermart-images-bucket"
 IMAGE_KEY = hashlib.sha256(str(random_uuid).encode()).hexdigest()[:16] + ".png"  # File name in S3
 
+# S3 URL format for permanent access
+S3_BASE_URL = f"https://{BUCKET_NAME}.s3.amazonaws.com/"
+
 
 def lambda_handler(event, context):
     try:
-        # Prompt for image generation
-        # prompt = "a beautiful lake with cat and fish"
-
         # Extract the prompt and seed from the event (with a default value)
         request_body = json.loads(event.get("body", "{}"))
         prompt = request_body.get("prompt", "a beautiful lake with cat and fish")
         seed = request_body.get("seed", 452345)  # Default value if not provided
 
-        # Correct payload for Amazon Titan
+        # Payload for Amazon Titan
         payload = {
             "taskType": "TEXT_IMAGE",
             "textToImageParams": {"text": prompt},
@@ -73,26 +73,23 @@ def lambda_handler(event, context):
 
         image_bytes = base64.b64decode(image_encoded)
 
-        # Upload the image to S3
+        # Upload the image to S3 with public access
         try:
             s3_client.put_object(
                 Bucket=BUCKET_NAME,
                 Key=IMAGE_KEY,
                 Body=image_bytes,
                 ContentType="image/png",
-                ContentLength=len(image_bytes)  # Best practice
+                ContentLength=len(image_bytes),  # Best practice
+                ACL='public-read'  # Make file publicly accessible
             )
             logger.info("Image uploaded successfully to S3: %s", IMAGE_KEY)
         except Exception as s3_error:
             logger.error("Failed to upload image to S3: %s", str(s3_error))
             raise
 
-        # Generate a pre-signed URL to retrieve the image
-        image_url = s3_client.generate_presigned_url(
-            'get_object',
-            Params={'Bucket': BUCKET_NAME, 'Key': IMAGE_KEY},
-            ExpiresIn=3600  # URL valid for 1 hour
-        )
+        # Generate a permanent S3 URL
+        image_url = S3_BASE_URL + IMAGE_KEY
 
         logger.info("Image available at: %s", image_url)
 

@@ -7,4 +7,4 @@ data:
   PORT: "3300"
   DB_HOST: "postgres.rendermart-db.svc.cluster.local"
   DB_NAME: "rendermart"
-  CORS_ORIGIN: "k8s-renderma-ingress-77a757caa3-1662937834.us-east-1.elb.amazonaws.com"
+  CORS_ORIGIN: "k8s-renderma-ingress-77a757caa3-1711867616.us-east-1.elb.amazonaws.com"

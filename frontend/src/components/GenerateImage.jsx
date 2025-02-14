@@ -26,7 +26,8 @@ function GenerateImage() {
 
 
 
-    const API_URL = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
+    const BACKEND_API = import.meta.env.VITE_INGRESS_IP;//process.env.VITE_INGRESS_IP;
+    const AWS_LAMBDA_API = import.meta.env.VITE_AWS_LAMBDA_API;//process.env.VITE_AWS_LAMBDA_API;
 
     const generateSeed = () => {
         const randomSeed = Math.floor(Math.random() * Math.pow(2, 32)); // Génère un entier aléatoire sur 32 bits
@@ -59,7 +60,7 @@ function GenerateImage() {
                 //     },
                 //     body: JSON.stringify({ prompt })
                 // });
-                const response = await fetch("https://ahvnkho6f9.execute-api.us-east-1.amazonaws.com/generate-image", {
+                const response = await fetch(`${AWS_LAMBDA_API}/generate-image`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -99,7 +100,7 @@ function GenerateImage() {
         }
 
         try {
-            const response = await fetch(`${API_URL}:80/api/wallet`, {
+            const response = await fetch(`${BACKEND_API}:80/api/wallet`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
