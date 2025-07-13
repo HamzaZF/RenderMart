@@ -1,13 +1,47 @@
 {
-  "name": "aigc-market",
+  "name": "rendermart-frontend",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Frontend for RenderMart - AI Image Generation Platform",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "lint:fix": "eslint . --fix",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "security-check": "npm audit",
+    "security-fix": "npm audit fix",
+    "docker:build": "docker build -t rendermart-frontend .",
+    "docker:run": "docker run -p 3000:80 rendermart-frontend"
+  },
+  "keywords": [
+    "react",
+    "vite",
+    "ai",
+    "image-generation",
+    "marketplace",
+    "tailwindcss"
+  ],
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/rendermart.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/rendermart/issues"
+  },
+  "homepage": "https://github.com/yourusername/rendermart#readme",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
   },
   "dependencies": {
     "axios": "^1.7.9",
@@ -34,6 +68,10 @@
     "globals": "^15.14.0",
     "postcss": "^8.5.1",
     "tailwindcss": "^3.4.17",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vitest": "^1.3.1",
+    "@vitest/ui": "^1.3.1",
+    "@vitest/coverage-v8": "^1.3.1",
+    "jsdom": "^24.0.0"
   }
 }
